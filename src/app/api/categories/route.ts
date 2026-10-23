@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, saveDb, Category } from '@/lib/db';
+import { getDbAsync, saveDb, Category } from '@/lib/db';
 
 export async function GET() {
   try {
-    const db = getDb();
+    const db = await getDbAsync();
     return NextResponse.json({ success: true, categories: db.categories });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -14,7 +14,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const db = getDb();
+    const db = await getDbAsync();
 
     if (!body.nameAr) {
       return NextResponse.json({ success: false, error: 'اسم الفئة مطلوب' }, { status: 400 });

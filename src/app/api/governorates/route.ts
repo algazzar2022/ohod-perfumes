@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, saveDb } from '@/lib/db';
+import { getDbAsync, saveDb } from '@/lib/db';
 
 export async function GET() {
   try {
-    const db = getDb();
+    const db = await getDbAsync();
     return NextResponse.json({ success: true, governorates: db.governorates });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -14,7 +14,7 @@ export async function GET() {
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const db = getDb();
+    const db = await getDbAsync();
 
     if (Array.isArray(body)) {
       // Bulk update

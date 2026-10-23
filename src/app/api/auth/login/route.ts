@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { verifyPassword } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const db = getDb();
+    const db = await getDbAsync();
     const cleanUsername = String(username).trim().toLowerCase();
     const admin = db.admins.find(
       (a) => a.username.toLowerCase() === cleanUsername

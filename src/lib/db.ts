@@ -246,6 +246,32 @@ export function saveDb(data: DatabaseData): void {
   }
 }
 
+export async function saveDbAsync(data: DatabaseData): Promise<void> {
+  memoryDb = data;
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    const tempPath = DB_PATH + '.tmp';
+    fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tempPath, DB_PATH);
+  } catch {
+    // serverless disk fallback
+  }
+
+  const tasks: Promise<any>[] = [];
+  if (getRedisConfig()) {
+    tasks.push(writeToRedis('ohod_store_data', data));
+  }
+  if (supabase) {
+    tasks.push(writeToSupabase(data));
+  }
+
+  if (tasks.length > 0) {
+    await Promise.allSettled(tasks);
+  }
+}
+
 // Async hydration from Supabase or Vercel Redis (if active)
 export async function getDbAsync(): Promise<DatabaseData> {
   const current = getDb();

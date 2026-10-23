@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDbAsync, saveDb, Product } from '@/lib/db';
+import { getDbAsync, saveDbAsync, Product } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   try {
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     };
 
     db.products.unshift(newProduct);
-    saveDb(db);
+    await saveDbAsync(db);
 
     return NextResponse.json({ success: true, product: newProduct });
   } catch (err: unknown) {

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, saveDb, AdminUser, AdminTab, ALL_ADMIN_PERMISSIONS } from '@/lib/db';
+import { getDbAsync, saveDb, AdminUser, AdminTab, ALL_ADMIN_PERMISSIONS } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 
 export async function GET() {
   try {
-    const db = getDb();
+    const db = await getDbAsync();
     // Exclude password hashes from response
     const safeAdmins = db.admins.map((a) => ({
       id: a.id,
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const db = getDb();
+    const db = await getDbAsync();
     const exists = db.admins.some(
       (a) => a.username.toLowerCase() === cleanUsername
     );
@@ -106,7 +106,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'المعرف مطلوب' }, { status: 400 });
     }
 
-    const db = getDb();
+    const db = await getDbAsync();
     if (db.admins.length <= 1) {
       return NextResponse.json(
         { success: false, error: 'لا يمكن حذف المشرف الأخير في النظام' },
@@ -138,7 +138,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'المعرف مطلوب' }, { status: 400 });
     }
 
-    const db = getDb();
+    const db = await getDbAsync();
     const index = db.admins.findIndex((a) => a.id === id);
     if (index === -1) {
       return NextResponse.json({ success: false, error: 'المشرف غير موجود' }, { status: 404 });

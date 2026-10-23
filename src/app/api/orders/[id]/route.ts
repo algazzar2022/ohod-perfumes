@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, saveDb } from '@/lib/db';
+import { getDbAsync, saveDb } from '@/lib/db';
 
 export async function GET(
   req: NextRequest,
@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const db = getDb();
+    const db = await getDbAsync();
     const order = db.orders.find(o => o.id === id || o.orderNumber === id);
 
     if (!order) {
@@ -28,7 +28,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await req.json();
-    const db = getDb();
+    const db = await getDbAsync();
     const index = db.orders.findIndex(o => o.id === id);
 
     if (index === -1) {
@@ -54,7 +54,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const db = getDb();
+    const db = await getDbAsync();
     const initialLen = db.orders.length;
 
     db.orders = db.orders.filter(o => o.id !== id);

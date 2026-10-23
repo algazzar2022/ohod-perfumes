@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, saveDb, Order } from '@/lib/db';
+import { getDbAsync, saveDbAsync, Order } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   try {
-    const db = getDb();
+    const db = await getDbAsync();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
 
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const db = getDb();
+    const db = await getDbAsync();
 
     if (!body.customerName || !body.phone || !body.governorateId || !body.address) {
       return NextResponse.json(
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     };
 
     db.orders.unshift(newOrder);
-    saveDb(db);
+    await saveDbAsync(db);
 
     return NextResponse.json({ success: true, order: newOrder });
   } catch (err: unknown) {
