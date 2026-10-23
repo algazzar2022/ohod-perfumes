@@ -1,11 +1,11 @@
-import { getDb } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { MetadataRoute } from 'next';
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
   try {
-    const db = getDb();
+    const db = await getDbAsync();
     const settings = db.settings;
-    const baseUrl = (settings.canonicalUrl || 'https://ohod-perfumes.com').replace(/\/+$/, '');
+    const baseUrl = (settings.canonicalUrl || 'https://ohodperfumes.com').replace(/\/+$/, '');
     const isIndexingAllowed = settings.robotsIndexing !== false;
 
     if (!isIndexingAllowed) {

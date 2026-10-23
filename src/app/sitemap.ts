@@ -1,11 +1,11 @@
-import { getDb } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
-    const db = getDb();
+    const db = await getDbAsync();
     const settings = db.settings;
-    const baseUrl = (settings.canonicalUrl || 'https://ohod-perfumes.com').replace(/\/+$/, '');
+    const baseUrl = (settings.canonicalUrl || 'https://ohodperfumes.com').replace(/\/+$/, '');
     const now = new Date();
 
     const staticRoutes: MetadataRoute.Sitemap = [
