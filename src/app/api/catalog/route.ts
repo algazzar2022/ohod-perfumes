@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 
 export async function GET() {
   try {
-    const db = getDb();
+    const db = await getDbAsync();
     return NextResponse.json({
       success: true,
       products: db.products,

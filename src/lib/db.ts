@@ -58,8 +58,43 @@ const DEFAULT_SETTINGS: StoreSettings = {
   robotsIndexing: true
 };
 
+import { supabase } from './supabase';
+
 // Global in-memory cache to maintain state across requests in serverless functions
 let memoryDb: DatabaseData | null = null;
+
+// Supabase sync helpers
+async function fetchFromSupabase(): Promise<DatabaseData | null> {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from('store_data')
+      .select('value')
+      .eq('key', 'main')
+      .single();
+
+    if (error || !data) return null;
+    return data.value as DatabaseData;
+  } catch (err) {
+    console.error('Supabase fetch error:', err);
+    return null;
+  }
+}
+
+async function writeToSupabase(data: DatabaseData): Promise<void> {
+  if (!supabase) return;
+  try {
+    await supabase
+      .from('store_data')
+      .upsert({
+        key: 'main',
+        value: data,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'key' });
+  } catch (err) {
+    console.error('Supabase save error:', err);
+  }
+}
 
 // Helpers to read/write from Vercel KV / Upstash Redis if configured
 function getRedisConfig() {
@@ -204,11 +239,27 @@ export function saveDb(data: DatabaseData): void {
   if (getRedisConfig()) {
     writeToRedis('ohod_store_data', data).catch(console.error);
   }
+
+  // If Supabase is connected, sync asynchronously
+  if (supabase) {
+    writeToSupabase(data).catch(console.error);
+  }
 }
 
-// Async hydration from Vercel Redis (if active)
+// Async hydration from Supabase or Vercel Redis (if active)
 export async function getDbAsync(): Promise<DatabaseData> {
   const current = getDb();
+
+  // Try Supabase first
+  if (supabase) {
+    const supaData = await fetchFromSupabase();
+    if (supaData && supaData.admins) {
+      memoryDb = supaData;
+      return supaData;
+    }
+  }
+
+  // Try Redis
   if (getRedisConfig()) {
     const remoteData = await fetchFromRedis('ohod_store_data');
     if (remoteData && remoteData.admins) {
@@ -216,5 +267,6 @@ export async function getDbAsync(): Promise<DatabaseData> {
       return remoteData;
     }
   }
+
   return current;
 }
