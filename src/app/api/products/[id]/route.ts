@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, saveDb } from '@/lib/db';
+import { getDbAsync, saveDb } from '@/lib/db';
 
 export async function GET(
   req: NextRequest,
@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const db = getDb();
+    const db = await getDbAsync();
     const product = db.products.find(p => p.id === Number(id));
 
     if (!product) {
@@ -28,7 +28,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await req.json();
-    const db = getDb();
+    const db = await getDbAsync();
     const index = db.products.findIndex(p => p.id === Number(id));
 
     if (index === -1) {
@@ -64,7 +64,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const db = getDb();
+    const db = await getDbAsync();
     const numId = Number(id);
     const initialLen = db.products.length;
 
