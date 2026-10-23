@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fafaf9;
+  --foreground: #1c1917;
+
+  /* Overriding amber variables directly so all Tailwind amber-* classes use the exact logo gold (#a28348) */
+  --color-amber-50: #fbf9f4;
+  --color-amber-100: #f4ecdf;
+  --color-amber-200: #e7d6b9;
+  --color-amber-300: #d6bb8c;
+  --color-amber-400: #c19f63;
+  --color-amber-500: #b18f52;
+  --color-amber-600: #a28348;
+  --color-amber-700: #8a6c37;
+  --color-amber-800: #6f542c;
+  --color-amber-900: #553f20;
+  --color-amber-950: #332411;
+}
+
+@theme inline {
+  --font-sans: var(--font-tajawal), system-ui, -apple-system, sans-serif;
+  --color-amber-50: var(--color-amber-50);
+  --color-amber-100: var(--color-amber-100);
+  --color-amber-200: var(--color-amber-200);
+  --color-amber-300: var(--color-amber-300);
+  --color-amber-400: var(--color-amber-400);
+  --color-amber-500: var(--color-amber-500);
+  --color-amber-600: var(--color-amber-600);
+  --color-amber-700: var(--color-amber-700);
+  --color-amber-800: var(--color-amber-800);
+  --color-amber-900: var(--color-amber-900);
+  --color-amber-950: var(--color-amber-950);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-tajawal), system-ui, -apple-system, sans-serif;
+}

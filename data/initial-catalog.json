@@ -1,0 +1,206 @@
+{
+  "success": true,
+  "products": [],
+  "categories": [
+    {
+      "id": 1,
+      "nameAr": "عطور رجالية",
+      "nameEn": "Men's Perfumes",
+      "icon": "User"
+    },
+    {
+      "id": 2,
+      "nameAr": "عطور نسائية",
+      "nameEn": "Women's Perfumes",
+      "icon": "Heart"
+    },
+    {
+      "id": 3,
+      "nameAr": "عطور للجنسين",
+      "nameEn": "Unisex Perfumes",
+      "icon": "Users"
+    },
+    {
+      "id": 4,
+      "nameAr": "عطور جاهزة",
+      "nameEn": "Ready Perfumes",
+      "icon": "Sparkles"
+    },
+    {
+      "id": 5,
+      "nameAr": "بخور ومباخر",
+      "nameEn": "Incense & Burners",
+      "icon": "Flame"
+    },
+    {
+      "id": 6,
+      "nameAr": "شخصية ومنزلية",
+      "nameEn": "Personal & Home Care",
+      "icon": "Wind"
+    },
+    {
+      "id": 7,
+      "nameAr": "عروض وخصومات",
+      "nameEn": "Offers & Discounts",
+      "icon": "Percent"
+    }
+  ],
+  "governorates": [
+    {
+      "id": 1,
+      "nameAr": "الاسكندريه",
+      "nameEn": "Alexandria",
+      "shippingFee": 90
+    },
+    {
+      "id": 2,
+      "nameAr": "السويس",
+      "nameEn": "Suez",
+      "shippingFee": 0
+    },
+    {
+      "id": 3,
+      "nameAr": "الاسماعيليه",
+      "nameEn": "Ismailia",
+      "shippingFee": 90
+    },
+    {
+      "id": 4,
+      "nameAr": "البحيره",
+      "nameEn": "Beheira",
+      "shippingFee": 90
+    },
+    {
+      "id": 5,
+      "nameAr": "الجيزة",
+      "nameEn": "Giza",
+      "shippingFee": 90
+    },
+    {
+      "id": 6,
+      "nameAr": "الدقهليه",
+      "nameEn": "Dakahlia",
+      "shippingFee": 90
+    },
+    {
+      "id": 7,
+      "nameAr": "الشرقيه",
+      "nameEn": "Sharqia",
+      "shippingFee": 90
+    },
+    {
+      "id": 8,
+      "nameAr": "الغربيه",
+      "nameEn": "Gharbia",
+      "shippingFee": 90
+    },
+    {
+      "id": 9,
+      "nameAr": "القاهره",
+      "nameEn": "Cairo",
+      "shippingFee": 90
+    },
+    {
+      "id": 10,
+      "nameAr": "القليوبيه",
+      "nameEn": "Qalyubia",
+      "shippingFee": 90
+    },
+    {
+      "id": 11,
+      "nameAr": "المنوفيه",
+      "nameEn": "Monufia",
+      "shippingFee": 90
+    },
+    {
+      "id": 12,
+      "nameAr": "بني سويف",
+      "nameEn": "Beni Suef",
+      "shippingFee": 120
+    },
+    {
+      "id": 13,
+      "nameAr": "بور سعيد",
+      "nameEn": "Port Said",
+      "shippingFee": 90
+    },
+    {
+      "id": 14,
+      "nameAr": "جنوب سيناء",
+      "nameEn": "South Sinai",
+      "shippingFee": 130
+    },
+    {
+      "id": 15,
+      "nameAr": "دمياط",
+      "nameEn": "Damietta",
+      "shippingFee": 90
+    },
+    {
+      "id": 16,
+      "nameAr": "قنا",
+      "nameEn": "Qena",
+      "shippingFee": 120
+    },
+    {
+      "id": 17,
+      "nameAr": "كفر الشيخ",
+      "nameEn": "Kafr El Sheikh",
+      "shippingFee": 90
+    },
+    {
+      "id": 18,
+      "nameAr": "الاقصر",
+      "nameEn": "Luxor",
+      "shippingFee": 130
+    },
+    {
+      "id": 19,
+      "nameAr": "المنيا",
+      "nameEn": "Minya",
+      "shippingFee": 120
+    },
+    {
+      "id": 20,
+      "nameAr": "اسيوط",
+      "nameEn": "Asyut",
+      "shippingFee": 120
+    },
+    {
+      "id": 21,
+      "nameAr": "سوهاج",
+      "nameEn": "Sohag",
+      "shippingFee": 120
+    },
+    {
+      "id": 22,
+      "nameAr": "البحر الاحمر",
+      "nameEn": "Red Sea",
+      "shippingFee": 120
+    },
+    {
+      "id": 23,
+      "nameAr": "الفيوم",
+      "nameEn": "Faiyum",
+      "shippingFee": 90
+    },
+    {
+      "id": 24,
+      "nameAr": "الوادي الجديد",
+      "nameEn": "New Valley",
+      "shippingFee": 130
+    },
+    {
+      "id": 25,
+      "nameAr": "اسوان",
+      "nameEn": "Aswan",
+      "shippingFee": 130
+    },
+    {
+      "id": 26,
+      "nameAr": "شمال سيناء",
+      "nameEn": "North Sinai",
+      "shippingFee": 130
+    }
+  ]
+}

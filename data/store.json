@@ -1,0 +1,277 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "nameAr": "“دُرّة التاج” – فخامتان … في صندوق واحد",
+      "nameEn": null,
+      "descriptionAr": "استمتع بتجربة عطريّة ملكية مع مجموعة “دُرّة التاج” من روائع – صندوق فاخر يحتوي على زجاجتين مختلفتين بحجم 50 مل، واحدة شفافة بنفحات منعشة، وأخرى سوداء بنفحات عميقة ودافئة، لترافقك في كل مزاج وكل وقت من يومك.\nالزجاجة الشفافة تأتي برائحة راقية متوازنة بنفحات عليا منعشة (حمضيات وزهور)، مثالية للصباح والإطلالات الخفيفة.\nأما الزجاجة السوداء فتمثل الفخامة الشرقية، برائحة مكثفة من العنبر والعود والمسك، تناسب المساء والمناسبات الخاصة.\nتصميم أنيق، تغليف فاخر، ومحتوى يعكس اسم المجموعة: دُرّة التاج … عنوان الذوق الملكي.",
+      "descriptionEn": null,
+      "price": 700,
+      "priceAfterDiscount": 595,
+      "categoryId": 4,
+      "available": true,
+      "inStock": true,
+      "images": [
+        "/images/products/72.jpg"
+      ],
+      "createdAt": "2026-10-23T00:14:37.918Z",
+      "updatedAt": "2026-10-23T00:14:37.918Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "nameAr": "عطور رجالية",
+      "nameEn": "Men's Perfumes",
+      "icon": "User"
+    },
+    {
+      "id": 2,
+      "nameAr": "عطور نسائية",
+      "nameEn": "Women's Perfumes",
+      "icon": "Heart"
+    },
+    {
+      "id": 3,
+      "nameAr": "عطور للجنسين",
+      "nameEn": "Unisex Perfumes",
+      "icon": "Users"
+    },
+    {
+      "id": 4,
+      "nameAr": "عطور جاهزة",
+      "nameEn": "Ready Perfumes",
+      "icon": "Sparkles"
+    },
+    {
+      "id": 5,
+      "nameAr": "بخور ومباخر",
+      "nameEn": "Incense & Burners",
+      "icon": "Flame"
+    },
+    {
+      "id": 6,
+      "nameAr": "شخصية ومنزلية",
+      "nameEn": "Personal & Home",
+      "icon": "Wind"
+    },
+    {
+      "id": 7,
+      "nameAr": "عروض وخصومات",
+      "nameEn": "Offers & Discounts",
+      "icon": "Percent"
+    }
+  ],
+  "governorates": [
+    {
+      "id": 1,
+      "nameAr": "الاسكندريه",
+      "nameEn": "Alexandria",
+      "shippingFee": 90
+    },
+    {
+      "id": 2,
+      "nameAr": "السويس",
+      "nameEn": "Suez",
+      "shippingFee": 0
+    },
+    {
+      "id": 3,
+      "nameAr": "الاسماعيليه",
+      "nameEn": "Ismailia",
+      "shippingFee": 90
+    },
+    {
+      "id": 4,
+      "nameAr": "البحيره",
+      "nameEn": "Beheira",
+      "shippingFee": 90
+    },
+    {
+      "id": 5,
+      "nameAr": "الجيزة",
+      "nameEn": "Giza",
+      "shippingFee": 90
+    },
+    {
+      "id": 6,
+      "nameAr": "الدقهليه",
+      "nameEn": "Dakahlia",
+      "shippingFee": 90
+    },
+    {
+      "id": 7,
+      "nameAr": "الشرقيه",
+      "nameEn": "Sharqia",
+      "shippingFee": 90
+    },
+    {
+      "id": 8,
+      "nameAr": "الغربيه",
+      "nameEn": "Gharbia",
+      "shippingFee": 90
+    },
+    {
+      "id": 9,
+      "nameAr": "القاهره",
+      "nameEn": "Cairo",
+      "shippingFee": 90
+    },
+    {
+      "id": 10,
+      "nameAr": "القليوبيه",
+      "nameEn": "Qalyubia",
+      "shippingFee": 90
+    },
+    {
+      "id": 11,
+      "nameAr": "المنوفيه",
+      "nameEn": "Monufia",
+      "shippingFee": 90
+    },
+    {
+      "id": 12,
+      "nameAr": "بني سويف",
+      "nameEn": "Beni Suef",
+      "shippingFee": 120
+    },
+    {
+      "id": 13,
+      "nameAr": "بور سعيد",
+      "nameEn": "Port Said",
+      "shippingFee": 90
+    },
+    {
+      "id": 14,
+      "nameAr": "جنوب سيناء",
+      "nameEn": "South Sinai",
+      "shippingFee": 130
+    },
+    {
+      "id": 15,
+      "nameAr": "دمياط",
+      "nameEn": "Damietta",
+      "shippingFee": 90
+    },
+    {
+      "id": 16,
+      "nameAr": "قنا",
+      "nameEn": "Qena",
+      "shippingFee": 120
+    },
+    {
+      "id": 17,
+      "nameAr": "كفر الشيخ",
+      "nameEn": "Kafr El Sheikh",
+      "shippingFee": 90
+    },
+    {
+      "id": 18,
+      "nameAr": "الاقصر",
+      "nameEn": "Luxor",
+      "shippingFee": 130
+    },
+    {
+      "id": 19,
+      "nameAr": "المنيا",
+      "nameEn": "Minya",
+      "shippingFee": 120
+    },
+    {
+      "id": 20,
+      "nameAr": "اسيوط",
+      "nameEn": "Asyut",
+      "shippingFee": 120
+    },
+    {
+      "id": 21,
+      "nameAr": "سوهاج",
+      "nameEn": "Sohag",
+      "shippingFee": 120
+    },
+    {
+      "id": 22,
+      "nameAr": "البحر الاحمر",
+      "nameEn": "Red Sea",
+      "shippingFee": 120
+    },
+    {
+      "id": 23,
+      "nameAr": "الفيوم",
+      "nameEn": "Faiyum",
+      "shippingFee": 90
+    },
+    {
+      "id": 24,
+      "nameAr": "الوادي الجديد",
+      "nameEn": "New Valley",
+      "shippingFee": 130
+    },
+    {
+      "id": 25,
+      "nameAr": "اسوان",
+      "nameEn": "Aswan",
+      "shippingFee": 130
+    },
+    {
+      "id": 26,
+      "nameAr": "شمال سيناء",
+      "nameEn": "North Sinai",
+      "shippingFee": 130
+    }
+  ],
+  "orders": [],
+  "settings": {
+    "storeName": "عطور أحد | Ohod Perfumes",
+    "storeTagline": "عطور فاخرة بأسعار منافسة في مصر",
+    "phone": "01015192223",
+    "whatsapp": "01015192223",
+    "facebookUrl": "https://www.facebook.com/EuturOhed",
+    "instagramUrl": "https://www.instagram.com/nehalmahmoud2022/",
+    "tiktokUrl": "https://www.tiktok.com/@nehalmahmoud7",
+    "bannerEnabled": false,
+    "bannerText": "🚚 شحن سريع لجميع محافظات مصر | دفع سهل وآمن عبر انستاباي وفودافون كاش | خصومات حصرية لفترة محدودة",
+    "instapayAccount": "01112724099",
+    "instapayInstructions": "يرجى تحويل إجمالي المبلغ عبر تطبيق انستاباي إلى رقم الهاتف أعلاه ثم إدخال رقم هاتفك المحول منه لتأكيد الطلب.",
+    "vodafoneCashNumber": "01015192223",
+    "vodafoneCashInstructions": "يرجى تحويل إجمالي المبلغ لمحفظة فودافون كاش على الرقم أعلاه ثم إدخال رقم المحفظة المحول منها.",
+    "footerAboutText": "عطور أحد (Ohod Perfumes) - وجهتك الأولى لأرقى العطور الفرنسية والشرقية الأصلية المركزة بدون كحول في مصر. ثبات يدوم طويلاً بأسعار منافسة وتوصيل فوري لجميع المحافظات.",
+    "footerAddress": "جمهورية مصر العربية - توصيل لكافة المحافظات",
+    "footerGuarantees": [
+      "ضمان أصالة المنتجات ١٠٠٪",
+      "توصيل سريع وآمن لجميع المحافظات",
+      "دفع إلكتروني فوري وموثوق عبر انستاباي وفودافون كاش",
+      "خدمة عملاء ومتابعة مستمرة بعد الطلب"
+    ],
+    "footerCopyrightText": "© 2026 عطور أحد - Ohod Perfumes. جميع الحقوق محفوظة.",
+    "footerDeveloperName": "MOHAMED ALGAZZAR",
+    "footerDeveloperUrl": "https://www.facebook.com/algazzar2015",
+    "siteTitle": "عطور أحد | Ohod Perfumes - عطور فرنسية وشرقية أصلية فاخرة في مصر",
+    "metaDescription": "تسوق أفضل العطور والزيوت العطرية المركزة بدون كحول في مصر من عطور أحد (Ohod Perfumes). عطور فرنسية وشرقية رجالي وحريمي، ثبات عالي وتوصيل سريع لكافة المحافظات مع دفع سهل عبر انستاباي وفودافون كاش.",
+    "metaKeywords": "عطور أحد, Ohod Perfumes, عطور فرنسية, عطور شرقية, دون الأصلي, دون الأبيض, دون البينك, زيوت عطرية, عطور بدون كحول, عطور مصر, شراء عطور أونلاين",
+    "canonicalUrl": "https://ohod-perfumes.com",
+    "ogImage": "/images/logo/don-logo-160.png",
+    "twitterHandle": "@ohodperfumes",
+    "googleSiteVerification": "",
+    "robotsIndexing": true
+  },
+  "admins": [
+    {
+      "id": "admin-1",
+      "username": "algazzar",
+      "name": "محمد الجزار",
+      "passwordHash": "77ccefa9649c749fd3590788bade1c6f:ebccb41a20f51998f061ce6b234b42744937e542052f5c9035e3a5e15a306f04be6e0e05f51007c74f4acaa6e7311a98e4957439702360f8a1e4941006da1330",
+      "createdAt": "2026-10-22T23:00:36.331Z",
+      "role": "all",
+      "permissions": [
+        "dashboard",
+        "products",
+        "categories",
+        "orders",
+        "shipping",
+        "settings",
+        "admins"
+      ]
+    }
+  ]
+}
