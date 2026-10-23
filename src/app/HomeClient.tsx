@@ -124,17 +124,17 @@ export default function HomeClient() {
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 w-full">
         {/* Category Pills Slider */}
         <div className="mb-6 w-full">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2.5 pt-0.5 sm:flex-wrap lg:grid lg:grid-cols-8 scrollbar-none no-scrollbar w-full">
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-2.5 pt-0.5 sm:flex-wrap lg:grid lg:grid-cols-8 scrollbar-none no-scrollbar w-full">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`flex-[0_0_28%] sm:flex-1 lg:w-full min-h-[48px] py-2.5 px-2 sm:px-2.5 rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-2xs flex items-center justify-center gap-1.5 flex-shrink-0 text-center cursor-pointer ${
+              className={`flex-shrink-0 whitespace-nowrap sm:flex-1 lg:w-full min-h-[48px] py-2.5 px-4 sm:px-3 rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-2xs flex items-center justify-center gap-2 text-center cursor-pointer ${
                 selectedCategory === 'all'
                   ? 'bg-amber-700 text-white shadow-amber-700/20 shadow-xs'
                   : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
               }`}
             >
               <span>الكل</span>
-              <span className={`text-[11px] sm:text-xs font-bold px-1.5 py-0.5 rounded-full ${
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                 selectedCategory === 'all' ? 'bg-amber-800 text-amber-100' : 'bg-stone-100 text-stone-600'
               }`}>
                 {products.length}
@@ -146,14 +146,14 @@ export default function HomeClient() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`flex-[0_0_28%] sm:flex-1 lg:w-full min-h-[48px] py-2.5 px-1.5 sm:px-2 rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-2xs flex items-center justify-center gap-1.5 flex-shrink-0 text-center cursor-pointer ${
+                  className={`flex-shrink-0 whitespace-nowrap sm:flex-1 lg:w-full min-h-[48px] py-2.5 px-4 sm:px-3 rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-2xs flex items-center justify-center gap-2 text-center cursor-pointer ${
                     selectedCategory === cat.id
                       ? 'bg-amber-700 text-white shadow-amber-700/20 shadow-xs'
                       : 'bg-white text-stone-700 hover:bg-stone-100 border border-stone-200'
                   }`}
                 >
-                  <span className="leading-tight text-center">{cat.nameAr}</span>
-                  <span className={`text-[11px] sm:text-xs font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${
+                  <span className="whitespace-nowrap">{cat.nameAr}</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
                     selectedCategory === cat.id ? 'bg-amber-800 text-amber-100' : 'bg-stone-100 text-stone-600'
                   }`}>
                     {count}
