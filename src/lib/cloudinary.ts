@@ -1,9 +1,23 @@
 import { v2 as cloudinary } from 'cloudinary';
 
+// Parse CLOUDINARY_URL if provided (cloudinary://key:secret@cloud_name)
+let cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'kuypfdzb';
+let apiKey = process.env.CLOUDINARY_API_KEY || '411814277896525';
+let apiSecret = process.env.CLOUDINARY_API_SECRET || '2DobSjzYxqPf_w660PW4_OVsBpg';
+
+if (process.env.CLOUDINARY_URL) {
+  const match = process.env.CLOUDINARY_URL.match(/cloudinary:\/\/([^:]+):([^@]+)@([^/?]+)/);
+  if (match) {
+    apiKey = match[1];
+    apiSecret = match[2];
+    cloudName = match[3];
+  }
+}
+
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: cloudName,
+  api_key: apiKey,
+  api_secret: apiSecret,
   secure: true,
 });
 
