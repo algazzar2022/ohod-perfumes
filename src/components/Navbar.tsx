@@ -42,7 +42,7 @@ export default function Navbar({ onSearchChange, searchTerm = '' }: NavbarProps)
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
       {/* Promotional Top Announcement Banner */}
       {banner.enabled && banner.text && (
-        <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 text-white text-[11px] sm:text-xs font-bold py-2 px-4 text-center shadow-inner transition-all duration-300">
+        <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 text-white text-xs sm:text-sm font-bold py-2 sm:py-2.5 px-4 text-center shadow-inner transition-all duration-300">
           <div className="max-w-7xl mx-auto flex items-center justify-center">
             <span>{banner.text}</span>
           </div>
@@ -68,7 +68,7 @@ export default function Navbar({ onSearchChange, searchTerm = '' }: NavbarProps)
               <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight leading-none group-hover:text-amber-700 transition">
                 عطور أحد
               </span>
-              <span className="text-[10px] sm:text-[11px] font-bold text-amber-700 tracking-widest uppercase mt-0.5">
+              <span className="text-[11px] sm:text-xs font-bold text-amber-700 tracking-widest uppercase mt-0.5">
                 Ohod Perfumes
               </span>
             </div>
@@ -133,7 +133,7 @@ export default function Navbar({ onSearchChange, searchTerm = '' }: NavbarProps)
                 placeholder="ابحث عن عطرك المفضل بالاسم..."
                 value={searchTerm}
                 onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-                className="w-full bg-stone-50 border border-amber-300 rounded-full py-2.5 pr-11 pl-4 text-sm outline-none focus:bg-white"
+                className="w-full bg-stone-50 border border-amber-300 rounded-full py-2.5 pr-11 pl-4 text-sm sm:text-base outline-none focus:bg-white"
               />
               <Search className="w-5 h-5 text-amber-600 absolute right-3.5 top-2.5 pointer-events-none" />
               {searchTerm && (

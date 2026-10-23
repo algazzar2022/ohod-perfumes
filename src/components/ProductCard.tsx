@@ -55,12 +55,12 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
         {/* Badges */}
         <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5 z-10">
           {hasDiscount && (
-            <span className="bg-red-600 text-white text-[11px] font-black px-2.5 py-1 rounded-full shadow-md">
+            <span className="bg-red-600 text-white text-xs font-black px-2.5 py-1 rounded-full shadow-md">
               وفر {discountPercent}٪
             </span>
           )}
           {!product.inStock && (
-            <span className="bg-stone-900/80 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full">
+            <span className="bg-stone-900/80 backdrop-blur-xs text-white text-xs font-bold px-2.5 py-1 rounded-full">
               نفذت الكمية
             </span>
           )}
@@ -68,7 +68,7 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
 
         {/* Quick view hover icon */}
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <span className="bg-white/90 backdrop-blur-xs text-stone-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5">
+          <span className="bg-white/90 backdrop-blur-xs text-stone-900 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5">
             <Eye className="w-3.5 h-3.5 text-amber-700" />
             عرض التفاصيل
           </span>
@@ -79,19 +79,19 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
         <div>
           {categoryName && (
-            <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wider block mb-1">
+            <span className="text-xs sm:text-sm font-bold text-amber-700 uppercase tracking-wider block mb-1">
               {categoryName}
             </span>
           )}
 
           <Link href={`/products/${product.id}`} className="block">
-            <h3 className="font-bold text-stone-900 text-sm sm:text-base line-clamp-1 hover:text-amber-700 transition">
+            <h3 className="font-bold text-stone-900 text-base sm:text-lg line-clamp-1 hover:text-amber-700 transition">
               {product.nameAr}
             </h3>
           </Link>
 
           {product.descriptionAr && (
-            <p className="text-stone-500 text-xs mt-1 line-clamp-2 leading-relaxed">
+            <p className="text-stone-600 text-xs sm:text-sm mt-1.5 line-clamp-2 leading-relaxed font-normal">
               {product.descriptionAr}
             </p>
           )}
@@ -101,13 +101,13 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
           {/* Prices */}
           <div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-amber-800 font-extrabold text-base sm:text-lg">
+              <span className="text-amber-800 font-extrabold text-lg sm:text-xl">
                 {displayPrice}
               </span>
-              <span className="text-stone-500 text-xs font-bold">ج.م</span>
+              <span className="text-stone-600 text-xs sm:text-sm font-bold">ج.م</span>
             </div>
             {hasDiscount && (
-              <span className="text-stone-400 text-xs line-through block">
+              <span className="text-stone-400 text-xs sm:text-sm line-through block font-medium">
                 {product.price} ج.م
               </span>
             )}
@@ -117,7 +117,7 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
           <button
             onClick={handleAdd}
             disabled={!product.inStock}
-            className={`flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-xs ${
+            className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-xs cursor-pointer ${
               !product.inStock
                 ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
                 : added

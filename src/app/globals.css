@@ -19,7 +19,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-tajawal), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-cairo), system-ui, -apple-system, sans-serif;
   --color-amber-50: var(--color-amber-50);
   --color-amber-100: var(--color-amber-100);
   --color-amber-200: var(--color-amber-200);
@@ -36,5 +36,5 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-tajawal), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-cairo), system-ui, -apple-system, sans-serif;
 }

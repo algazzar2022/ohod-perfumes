@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
-import { Tajawal } from 'next/font/google';
+import { Cairo } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import CartDrawer from '@/components/CartDrawer';
 import Toast from '@/components/Toast';
 import { getStoreMetadata } from '@/lib/seo';
 
-const tajawal = Tajawal({
+const cairo = Cairo({
   subsets: ['arabic', 'latin'],
-  weight: ['300', '400', '500', '700', '800', '900'],
-  variable: '--font-tajawal',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-cairo',
   display: 'swap',
 });
 
@@ -62,7 +62,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={tajawal.variable} suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className={cairo.variable} suppressHydrationWarning>
       <body className="font-sans antialiased bg-stone-50 text-stone-900 min-h-screen flex flex-col selection:bg-amber-600 selection:text-white" suppressHydrationWarning>
         <CartProvider>
           {children}
