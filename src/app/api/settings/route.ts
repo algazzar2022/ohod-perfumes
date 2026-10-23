@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDbAsync, saveDb } from '@/lib/db';
+import { getDbAsync, saveDbAsync } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
 
 export async function GET() {
   try {
@@ -24,7 +25,16 @@ export async function PUT(req: NextRequest) {
       ...body
     };
 
-    saveDb(db);
+    await saveDbAsync(db);
+
+    try {
+      revalidatePath('/', 'page');
+      revalidatePath('/', 'layout');
+      revalidatePath('/sitemap.xml');
+      revalidatePath('/robots.txt');
+    } catch (e) {
+      console.warn('Cache revalidation warning:', e);
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { adminPasswordHash, ...safeSettings } = db.settings;
