@@ -80,6 +80,13 @@ export interface Order {
   updatedAt?: string;
 }
 
+export interface HeroSlide {
+  image: string;
+  title?: string;
+  subtitle?: string;
+  link?: string;
+}
+
 export interface StoreSettings {
   storeName: string;
   storeTagline: string;
@@ -101,6 +108,12 @@ export interface StoreSettings {
   footerCopyrightText?: string;
   footerDeveloperName?: string;
   footerDeveloperUrl?: string;
+
+  // Hero Media Banner
+  heroBannerEnabled?: boolean;
+  heroBannerType?: 'slideshow' | 'video';
+  heroSlides?: HeroSlide[];
+  heroVideoUrl?: string;
 
   // SEO Settings
   siteTitle?: string;

@@ -39,7 +39,8 @@ import {
   Share2,
   Sparkles,
   Upload,
-  ImageIcon
+  ImageIcon,
+  Film
 } from 'lucide-react';
 import { Product, Category, Governorate, Order, StoreSettings, AdminUser, AdminTab, ALL_ADMIN_PERMISSIONS } from '@/lib/types';
 
@@ -126,6 +127,8 @@ export default function AdminPage() {
     image: '/images/logo/don-logo-160.png'
   });
   const [imageUploading, setImageUploading] = useState(false);
+  const [heroUploadingIndex, setHeroUploadingIndex] = useState<number | null>(null);
+  const [heroVideoUploading, setHeroVideoUploading] = useState(false);
 
   // Category Form State
   const [catForm, setCatForm] = useState({
@@ -145,6 +148,17 @@ export default function AdminPage() {
     tiktokUrl: '',
     bannerEnabled: true,
     bannerText: '',
+    heroBannerEnabled: true,
+    heroBannerType: 'slideshow',
+    heroSlides: [
+      {
+        image: 'https://res.cloudinary.com/kuypfdzb/image/upload/v1792719223/807590317_1763755772421552_7849880766636249819_n.jpg',
+        title: 'عطور أحد | فخامة وثبات استثنائي',
+        subtitle: 'أرقى العطور الفرنسية والشرقية الأصلية بدون كحول',
+        link: '/categories/7'
+      }
+    ],
+    heroVideoUrl: '',
     instapayAccount: '',
     instapayInstructions: '',
     vodafoneCashNumber: '',
@@ -205,6 +219,17 @@ export default function AdminPage() {
           tiktokUrl: '',
           bannerEnabled: true,
           bannerText: '',
+          heroBannerEnabled: true,
+          heroBannerType: 'slideshow',
+          heroSlides: [
+            {
+              image: 'https://res.cloudinary.com/kuypfdzb/image/upload/v1792719223/807590317_1763755772421552_7849880766636249819_n.jpg',
+              title: 'عطور أحد | فخامة وثبات استثنائي',
+              subtitle: 'أرقى العطور الفرنسية والشرقية الأصلية بدون كحول',
+              link: '/categories/7'
+            }
+          ],
+          heroVideoUrl: '',
           instapayAccount: '',
           instapayInstructions: '',
           vodafoneCashNumber: '',
@@ -462,6 +487,28 @@ export default function AdminPage() {
       image: prod.images?.[0] || '/images/logo/don-logo-160.png'
     });
     setProductModalOpen(true);
+  };
+
+  const uploadFileToCloudinary = async (file: File): Promise<string | null> => {
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: fd
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        showToast('تم رفع الملف بنجاح عبر Cloudinary ✨');
+        return data.url;
+      } else {
+        alert(data.error || 'فشل رفع الملف إلى Cloudinary');
+        return null;
+      }
+    } catch {
+      alert('حدث خطأ أثناء رفع الملف');
+      return null;
+    }
   };
 
   const handleUploadImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1690,6 +1737,335 @@ export default function AdminPage() {
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* 2. HERO BANNER SECTION (SLIDESHOW / VIDEO) */}
+                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-6">
+                  <div className="flex items-start justify-between gap-4 pb-4 border-b border-stone-100 flex-wrap sm:flex-nowrap">
+                    <div>
+                      <h3 className="text-base sm:text-lg font-black text-stone-900 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-amber-600" />
+                        <span>البانر الإعلاني الرئيسي (بين الهيدر والأقسام)</span>
+                      </h3>
+                      <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                        تحكم كامل في البانر الكبير الذي يظهر في أعلى الصفحة الرئيسية، مع خيار التبديل بين سلايد شو متحرك لـ 4 صور أو فيديو متكرر تلقائي.
+                      </p>
+                    </div>
+
+                    {/* Enable / Disable toggle */}
+                    <label className={`inline-flex items-center gap-2 cursor-pointer px-3.5 py-1.5 rounded-xl text-xs font-bold transition select-none flex-shrink-0 ${
+                      settingsForm.heroBannerEnabled !== false
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                        : 'bg-stone-100 text-stone-600 border border-stone-300'
+                    }`}>
+                      <input
+                        type="checkbox"
+                        checked={settingsForm.heroBannerEnabled !== false}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, heroBannerEnabled: e.target.checked })}
+                        className="w-4 h-4 rounded cursor-pointer accent-amber-600"
+                      />
+                      <span>{settingsForm.heroBannerEnabled !== false ? 'البانر مفعّل (ظاهر بالموقع)' : 'البانر معطّل (مخفي)'}</span>
+                    </label>
+                  </div>
+
+                  {settingsForm.heroBannerEnabled !== false && (
+                    <div className="space-y-6">
+                      {/* Mode Choice (Slideshow vs Video) */}
+                      <div>
+                        <label className="block text-xs sm:text-sm font-bold text-stone-800 mb-2">
+                          اختر طريقة العرض في البانر:
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setSettingsForm({ ...settingsForm, heroBannerType: 'slideshow' })}
+                            className={`p-4 rounded-2xl border-2 text-right transition cursor-pointer flex items-center gap-3.5 ${
+                              (settingsForm.heroBannerType ?? 'slideshow') === 'slideshow'
+                                ? 'border-amber-600 bg-amber-50/70 shadow-xs'
+                                : 'border-stone-200 bg-white hover:bg-stone-50'
+                            }`}
+                          >
+                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                              (settingsForm.heroBannerType ?? 'slideshow') === 'slideshow' ? 'bg-amber-600 text-white shadow-xs' : 'bg-stone-100 text-stone-600'
+                            }`}>
+                              <ImageIcon className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <span className="font-black text-sm block text-stone-900">سلايد شو صور (Slideshow)</span>
+                              <span className="text-xs text-stone-500 block mt-0.5">انتقال تلقائي بين 4 صور مع دعم السحب بالموبايل</span>
+                            </div>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setSettingsForm({ ...settingsForm, heroBannerType: 'video' })}
+                            className={`p-4 rounded-2xl border-2 text-right transition cursor-pointer flex items-center gap-3.5 ${
+                              settingsForm.heroBannerType === 'video'
+                                ? 'border-amber-600 bg-amber-50/70 shadow-xs'
+                                : 'border-stone-200 bg-white hover:bg-stone-50'
+                            }`}
+                          >
+                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                              settingsForm.heroBannerType === 'video' ? 'bg-amber-600 text-white shadow-xs' : 'bg-stone-100 text-stone-600'
+                            }`}>
+                              <Film className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <span className="font-black text-sm block text-stone-900">فيديو ترويجي (Video)</span>
+                              <span className="text-xs text-stone-500 block mt-0.5">تشغيل تلقائي مكرر دائم بدون توقف (Autoplay Loop)</span>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Case 1: Slideshow Configuration (up to 4 slides) */}
+                      {(settingsForm.heroBannerType ?? 'slideshow') === 'slideshow' && (
+                        <div className="space-y-4 pt-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs sm:text-sm font-bold text-stone-800">
+                              شرائح السلايد شو (حتى 4 صور):
+                            </span>
+                            {(settingsForm.heroSlides?.length || 0) < 4 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const current = settingsForm.heroSlides || [];
+                                  if (current.length < 4) {
+                                    setSettingsForm({
+                                      ...settingsForm,
+                                      heroSlides: [
+                                        ...current,
+                                        { image: '', title: '', subtitle: '', link: '' }
+                                      ]
+                                    });
+                                  }
+                                }}
+                                className="text-xs font-bold text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 cursor-pointer transition flex items-center gap-1"
+                              >
+                                <span>+ إضافة شريحة جديدة ({4 - (settingsForm.heroSlides?.length || 0)} متبقي)</span>
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="space-y-4">
+                            {(settingsForm.heroSlides || []).map((slide, sIdx) => (
+                              <div key={sIdx} className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3 relative">
+                                <div className="flex items-center justify-between pb-2 border-b border-stone-200">
+                                  <span className="font-black text-xs sm:text-sm text-stone-800">
+                                    الشريحة رقم {sIdx + 1}
+                                  </span>
+                                  {(settingsForm.heroSlides?.length || 0) > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = (settingsForm.heroSlides || []).filter((_, i) => i !== sIdx);
+                                        setSettingsForm({ ...settingsForm, heroSlides: updated });
+                                      }}
+                                      className="text-xs text-red-600 hover:text-red-800 font-bold hover:underline cursor-pointer"
+                                    >
+                                      حذف الشريحة
+                                    </button>
+                                  )}
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                  {/* Image preview & upload */}
+                                  <div className="space-y-2">
+                                    <label className="block text-xs font-bold text-stone-700">
+                                      صورة الشريحة *
+                                    </label>
+                                    <div className="relative aspect-[16/9] bg-stone-200 rounded-xl overflow-hidden border border-stone-300">
+                                      {slide.image ? (
+                                        <img src={slide.image} alt="" className="w-full h-full object-cover" />
+                                      ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center text-stone-400 text-xs">
+                                          <ImageIcon className="w-6 h-6 mb-1" />
+                                          <span>لا توجد صورة</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <label className="w-full flex items-center justify-center gap-1.5 border border-amber-600/40 hover:border-amber-600 bg-white hover:bg-amber-50 rounded-xl py-2 px-3 text-xs font-bold text-amber-800 cursor-pointer transition shadow-2xs">
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={async (e) => {
+                                          const file = e.target.files?.[0];
+                                          if (!file) return;
+                                          setHeroUploadingIndex(sIdx);
+                                          const url = await uploadFileToCloudinary(file);
+                                          setHeroUploadingIndex(null);
+                                          if (url) {
+                                            const updated = [...(settingsForm.heroSlides || [])];
+                                            updated[sIdx] = { ...updated[sIdx], image: url };
+                                            setSettingsForm({ ...settingsForm, heroSlides: updated });
+                                          }
+                                        }}
+                                      />
+                                      {heroUploadingIndex === sIdx ? (
+                                        <>
+                                          <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" />
+                                          <span>جاري الرفع لـ Cloudinary...</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Upload className="w-3.5 h-3.5 text-amber-600" />
+                                          <span>رفع صورة عبر Cloudinary</span>
+                                        </>
+                                      )}
+                                    </label>
+                                    <input
+                                      type="text"
+                                      dir="ltr"
+                                      placeholder="أو رابط مباشر للصورة"
+                                      value={slide.image}
+                                      onChange={(e) => {
+                                        const updated = [...(settingsForm.heroSlides || [])];
+                                        updated[sIdx] = { ...updated[sIdx], image: e.target.value };
+                                        setSettingsForm({ ...settingsForm, heroSlides: updated });
+                                      }}
+                                      className="w-full bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs outline-none font-mono"
+                                    />
+                                  </div>
+
+                                  {/* Title & subtitle & link */}
+                                  <div className="sm:col-span-2 space-y-2.5">
+                                    <div>
+                                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                                        عنوان الشريحة (اختياري)
+                                      </label>
+                                      <input
+                                        type="text"
+                                        placeholder="مثال: خصم 30٪ على العطور الفرنسية"
+                                        value={slide.title || ''}
+                                        onChange={(e) => {
+                                          const updated = [...(settingsForm.heroSlides || [])];
+                                          updated[sIdx] = { ...updated[sIdx], title: e.target.value };
+                                          setSettingsForm({ ...settingsForm, heroSlides: updated });
+                                        }}
+                                        className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs sm:text-sm outline-none focus:border-amber-600"
+                                      />
+                                    </div>
+
+                                    <div>
+                                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                                        وصف أو سطر فرعي (اختياري)
+                                      </label>
+                                      <input
+                                        type="text"
+                                        placeholder="مثال: ثبات عالي يدوم طويلاً بأسعار منافسة"
+                                        value={slide.subtitle || ''}
+                                        onChange={(e) => {
+                                          const updated = [...(settingsForm.heroSlides || [])];
+                                          updated[sIdx] = { ...updated[sIdx], subtitle: e.target.value };
+                                          setSettingsForm({ ...settingsForm, heroSlides: updated });
+                                        }}
+                                        className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs sm:text-sm outline-none focus:border-amber-600"
+                                      />
+                                    </div>
+
+                                    <div>
+                                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                                        رابط التوجيه عند النقر على الصورة (اختياري)
+                                      </label>
+                                      <input
+                                        type="text"
+                                        dir="ltr"
+                                        placeholder="مثال: /categories/7 أو رابط واتساب"
+                                        value={slide.link || ''}
+                                        onChange={(e) => {
+                                          const updated = [...(settingsForm.heroSlides || [])];
+                                          updated[sIdx] = { ...updated[sIdx], link: e.target.value };
+                                          setSettingsForm({ ...settingsForm, heroSlides: updated });
+                                        }}
+                                        className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs sm:text-sm outline-none font-mono focus:border-amber-600"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Case 2: Video Configuration */}
+                      {settingsForm.heroBannerType === 'video' && (
+                        <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-4">
+                          <div>
+                            <label className="block text-xs sm:text-sm font-bold text-stone-800 mb-1">
+                              رابط ملف الفيديو المباشر (MP4 / WebM / Cloudinary) *
+                            </label>
+                            <input
+                              type="url"
+                              dir="ltr"
+                              placeholder="https://res.cloudinary.com/.../video.mp4"
+                              value={settingsForm.heroVideoUrl || ''}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, heroVideoUrl: e.target.value })}
+                              className="w-full bg-white border border-stone-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm outline-none font-mono focus:border-amber-600 text-left"
+                            />
+                            <span className="text-[11px] text-stone-500 mt-1 block">
+                              * يُفضل رفع الفيديو إلى Cloudinary أو وضع رابط مباشر لملف فيديو (.mp4).
+                            </span>
+                          </div>
+
+                          {/* Video upload button */}
+                          <div className="flex items-center gap-3">
+                            <label className="inline-flex items-center gap-2 border border-stone-300 hover:border-amber-600 bg-white hover:bg-stone-50 rounded-xl py-2 px-4 text-xs font-bold text-stone-800 cursor-pointer transition shadow-2xs">
+                              <input
+                                type="file"
+                                accept="video/*"
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  setHeroVideoUploading(true);
+                                  const url = await uploadFileToCloudinary(file);
+                                  setHeroVideoUploading(false);
+                                  if (url) {
+                                    setSettingsForm({ ...settingsForm, heroVideoUrl: url });
+                                  }
+                                }}
+                              />
+                              {heroVideoUploading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+                                  <span>جاري رفع الفيديو...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="w-4 h-4 text-amber-600" />
+                                  <span>رفع فيديو من الجهاز</span>
+                                </>
+                              )}
+                            </label>
+                          </div>
+
+                          {/* Video preview */}
+                          {settingsForm.heroVideoUrl && (
+                            <div className="space-y-1.5 pt-2">
+                              <span className="text-xs font-bold text-stone-700 block">معاينة مباشرة للفيديو:</span>
+                              <div className="relative aspect-[16/9] sm:aspect-[21/9] max-h-[300px] rounded-xl overflow-hidden bg-stone-900 border border-stone-300">
+                                <video
+                                  src={settingsForm.heroVideoUrl}
+                                  autoPlay
+                                  muted
+                                  loop
+                                  playsInline
+                                  controls
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="bg-amber-50 p-3 rounded-xl border border-amber-200 text-[11px] sm:text-xs text-amber-900 leading-relaxed font-medium">
+                            💡 الفيديو يعمل تلقائياً (Autoplay Loop) في الموبايل والكمبيوتر بالوضع الصامت (Muted) ليتوافق مع جميع الهواتف والمتصفحات، ويعيد تشغيل نفسه فور انتهائه بدون توقف.
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* 2. Payment Gateways (InstaPay & Vodafone Cash) */}

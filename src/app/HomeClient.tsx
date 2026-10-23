@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
+import HeroBanner from '@/components/HeroBanner';
 import Footer from '@/components/Footer';
-import { Product, Category } from '@/lib/db';
+import { Product, Category, StoreSettings } from '@/lib/db';
 import { SlidersHorizontal, PackageX, Loader2, ChevronDown, Check } from 'lucide-react';
 
 const SORT_OPTIONS = [
@@ -19,6 +20,7 @@ type SortOptionValue = typeof SORT_OPTIONS[number]['value'];
 export default function HomeClient() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +53,9 @@ export default function HomeClient() {
         if (data.success) {
           setProducts(data.products || []);
           setCategories(data.categories || []);
+          if (data.settings) {
+            setSettings(data.settings);
+          }
         } else {
           setError(data.error || 'تعذر تحميل المنتجات');
         }
@@ -122,6 +127,9 @@ export default function HomeClient() {
 
       {/* Main Content Section */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 w-full">
+        {/* Hero Media Banner (Slideshow / Video) */}
+        <HeroBanner settings={settings} />
+
         {/* Category Pills Slider */}
         <div className="mb-6 w-full">
           <div className="flex items-center gap-2.5 overflow-x-auto pb-2.5 pt-0.5 sm:flex-wrap lg:grid lg:grid-cols-8 scrollbar-none no-scrollbar w-full">

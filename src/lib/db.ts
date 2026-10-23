@@ -28,6 +28,19 @@ const DEFAULT_SETTINGS: StoreSettings = {
   bannerEnabled: false,
   bannerText: '🚚 شحن سريع لجميع محافظات مصر | دفع آمن عبر انستاباي وفودافون كاش',
 
+  // Hero Media Banner Defaults
+  heroBannerEnabled: true,
+  heroBannerType: 'slideshow',
+  heroSlides: [
+    {
+      image: 'https://res.cloudinary.com/kuypfdzb/image/upload/v1792719223/807590317_1763755772421552_7849880766636249819_n.jpg',
+      title: 'عطور أحد | فخامة وثبات استثنائي',
+      subtitle: 'أرقى العطور الفرنسية والشرقية الأصلية بدون كحول',
+      link: '/categories/7'
+    }
+  ],
+  heroVideoUrl: '',
+
   // Payments Defaults
   instapayAccount: '01112724099',
   instapayInstructions: 'يرجى تحويل إجمالي المبلغ عبر تطبيق انستاباي إلى رقم الهاتف أعلاه ثم إدخال رقم هاتفك المحول منه لتأكيد الطلب.',
