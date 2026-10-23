@@ -185,26 +185,26 @@ export default function HeroBanner({ settings }: HeroBannerProps) {
             </button>
           </>
         )}
-
-        {/* Pagination Dots */}
-        {totalSlides > 1 && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 bg-stone-950/40 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10">
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setCurrentIndex(idx)}
-                aria-label={`الانتقال إلى الشريحة ${idx + 1}`}
-                className={`transition-all duration-300 rounded-full cursor-pointer ${
-                  idx === currentIndex
-                    ? 'w-6 sm:w-8 h-2 bg-amber-500 shadow-xs'
-                    : 'w-2 h-2 bg-white/50 hover:bg-white/80'
-                }`}
-              />
-            ))}
-          </div>
-        )}
       </div>
+
+      {/* Pagination Dots (Outside the image to keep the full banner clear) */}
+      {totalSlides > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-3">
+          {slides.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => setCurrentIndex(idx)}
+              aria-label={`الانتقال إلى الشريحة ${idx + 1}`}
+              className={`transition-all duration-300 rounded-full cursor-pointer ${
+                idx === currentIndex
+                  ? 'w-7 sm:w-8 h-2 sm:h-2.5 bg-amber-600 shadow-xs'
+                  : 'w-2 sm:w-2.5 h-2 sm:h-2.5 bg-stone-300 hover:bg-stone-400'
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
