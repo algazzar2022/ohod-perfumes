@@ -37,7 +37,9 @@ import {
   UserPlus,
   Globe,
   Share2,
-  Sparkles
+  Sparkles,
+  Upload,
+  ImageIcon
 } from 'lucide-react';
 import { Product, Category, Governorate, Order, StoreSettings, AdminUser, AdminTab, ALL_ADMIN_PERMISSIONS } from '@/lib/types';
 
@@ -121,8 +123,9 @@ export default function AdminPage() {
     priceAfterDiscount: 0,
     descriptionAr: '',
     inStock: true,
-    image: '/images/products/1.jpeg'
+    image: '/images/logo/don-logo-160.png'
   });
+  const [imageUploading, setImageUploading] = useState(false);
 
   // Category Form State
   const [catForm, setCatForm] = useState({
@@ -441,7 +444,7 @@ export default function AdminPage() {
       priceAfterDiscount: 0,
       descriptionAr: '',
       inStock: true,
-      image: '/images/products/1.jpeg'
+      image: '/images/logo/don-logo-160.png'
     });
     setProductModalOpen(true);
   };
@@ -456,9 +459,36 @@ export default function AdminPage() {
       priceAfterDiscount: prod.priceAfterDiscount || 0,
       descriptionAr: prod.descriptionAr || '',
       inStock: prod.inStock,
-      image: prod.images?.[0] || '/images/products/1.jpeg'
+      image: prod.images?.[0] || '/images/logo/don-logo-160.png'
     });
     setProductModalOpen(true);
+  };
+
+  const handleUploadImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setImageUploading(true);
+      const fd = new FormData();
+      fd.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: fd
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        setProdForm(prev => ({ ...prev, image: data.url }));
+        showToast('تم رفع الصورة وضغطها بنجاح عبر Cloudinary ✨');
+      } else {
+        alert(data.error || 'فشل رفع الصورة إلى Cloudinary');
+      }
+    } catch {
+      alert('حدث خطأ في الاتصال أثناء رفع الصورة');
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
@@ -2248,15 +2278,55 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">
-                  رابط صورة المنتج
+                  صورة العطر (رفع مباشر عبر Cloudinary مع ضغط الحجم)
                 </label>
-                <input
-                  type="text"
-                  placeholder="/images/products/1.jpeg أو رابط خارجي"
-                  value={prodForm.image}
-                  onChange={(e) => setProdForm({ ...prodForm, image: e.target.value })}
-                  className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600"
-                />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <label className={`flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-stone-300 hover:border-amber-500 rounded-xl py-3 px-4 bg-stone-50 cursor-pointer transition ${imageUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleUploadImageFile}
+                        className="hidden"
+                      />
+                      {imageUploading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+                          <span className="text-xs font-bold text-stone-600">جاري الرفع والضغط على Cloudinary...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 text-amber-600" />
+                          <span className="text-xs font-bold text-stone-700">اختر صورة من جهازك (رفع وضغط فوري)</span>
+                        </>
+                      )}
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="أو ضع رابط الصورة مباشرة هنا"
+                      value={prodForm.image}
+                      onChange={(e) => setProdForm({ ...prodForm, image: e.target.value })}
+                      className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-xs outline-none focus:border-amber-600 font-mono"
+                    />
+                    {prodForm.image && (
+                      <div className="relative w-9 h-9 rounded-lg overflow-hidden border border-stone-300 flex-shrink-0 bg-stone-100">
+                        <Image
+                          src={prodForm.image}
+                          alt="معاينة"
+                          fill
+                          className="object-cover"
+                          sizes="36px"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-[11px] text-stone-400 block">
+                    ⚡ يتم تقليل وضغط حجم الصورة تلقائياً وتحويلها لصيغ الويب الحديثة (WebP / AVIF) دون فقدان الجودة.
+                  </span>
+                </div>
               </div>
 
               <div>

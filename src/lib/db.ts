@@ -29,8 +29,8 @@ const DEFAULT_SETTINGS: StoreSettings = {
   bannerText: '🚚 شحن سريع لجميع محافظات مصر | دفع آمن عبر انستاباي وفودافون كاش',
 
   // Payments Defaults
-  instapayAccount: 'ohodperfumes@instapay',
-  instapayInstructions: 'يرجى تحويل إجمالي المبلغ عبر تطبيق انستاباي إلى العنوان أعلاه ثم إدخال رقم الحساب/الهاتف المحول منه لتأكيد الطلب.',
+  instapayAccount: '01112724099',
+  instapayInstructions: 'يرجى تحويل إجمالي المبلغ عبر تطبيق انستاباي إلى رقم الهاتف أعلاه ثم إدخال رقم هاتفك المحول منه لتأكيد الطلب.',
   vodafoneCashNumber: '01015192223',
   vodafoneCashInstructions: 'يرجى تحويل إجمالي المبلغ لمحفظة فودافون كاش على الرقم أعلاه ثم إدخال رقم المحفظة المحول منها.',
 
@@ -58,16 +58,71 @@ const DEFAULT_SETTINGS: StoreSettings = {
   robotsIndexing: true
 };
 
+// Global in-memory cache to maintain state across requests in serverless functions
+let memoryDb: DatabaseData | null = null;
+
+// Helpers to read/write from Vercel KV / Upstash Redis if configured
+function getRedisConfig() {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  return url && token ? { url, token } : null;
+}
+
+async function fetchFromRedis(key: string): Promise<any | null> {
+  const conf = getRedisConfig();
+  if (!conf) return null;
+  try {
+    const res = await fetch(`${conf.url}/get/${key}`, {
+      headers: { Authorization: `Bearer ${conf.token}` },
+      cache: 'no-store'
+    });
+    const json = await res.json();
+    if (json.result) {
+      return typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+    }
+  } catch (e) {
+    console.error('Redis read error:', e);
+  }
+  return null;
+}
+
+async function writeToRedis(key: string, value: any): Promise<boolean> {
+  const conf = getRedisConfig();
+  if (!conf) return false;
+  try {
+    await fetch(`${conf.url}/set/${key}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${conf.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(typeof value === 'string' ? value : JSON.stringify(value)),
+      cache: 'no-store'
+    });
+    return true;
+  } catch (e) {
+    console.error('Redis write error:', e);
+    return false;
+  }
+}
+
 function ensureInitialized(): DatabaseData {
+  if (memoryDb) {
+    return memoryDb;
+  }
+
   if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    } catch {
+      // In readonly serverless environments, ignore mkdir errors
+    }
   }
 
   if (fs.existsSync(DB_PATH)) {
     try {
       const content = fs.readFileSync(DB_PATH, 'utf8');
       const parsed = JSON.parse(content);
-      // Merge new settings keys if missing
       parsed.settings = { ...DEFAULT_SETTINGS, ...parsed.settings };
       if (!Array.isArray(parsed.admins) || parsed.admins.length === 0) {
         parsed.admins = [
@@ -81,8 +136,8 @@ function ensureInitialized(): DatabaseData {
             createdAt: new Date().toISOString()
           }
         ];
-        saveDb(parsed);
       }
+      memoryDb = parsed;
       return parsed;
     } catch {
       // Fallback
@@ -102,35 +157,7 @@ function ensureInitialized(): DatabaseData {
     products: initialCatalog.products || [],
     categories: initialCatalog.categories || [],
     governorates: initialCatalog.governorates || [],
-    orders: [
-      {
-        id: 'ord-1001',
-        orderNumber: 'OHOD-1001',
-        customerName: 'أحمد محمود',
-        phone: '01012345678',
-        governorateId: 9,
-        governorateName: 'القاهره',
-        address: 'شارع الهرم - محطة نصر الدين - عمارة 15 الدور الرابع',
-        notes: 'يرجى الاتصال قبل الوصول بنصف ساعة',
-        items: [
-          {
-            productId: 1,
-            nameAr: 'أحد الأبيض 6مل',
-            price: 140,
-            quantity: 2,
-            image: '/images/products/1.jpeg'
-          }
-        ],
-        subtotal: 280,
-        shippingFee: 90,
-        total: 370,
-        status: 'pending',
-        paymentMethod: 'instapay',
-        paymentSenderInfo: 'ahmed@instapay',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    ],
+    orders: [],
     settings: DEFAULT_SETTINGS,
     admins: [
       {
@@ -145,7 +172,13 @@ function ensureInitialized(): DatabaseData {
     ]
   };
 
-  fs.writeFileSync(DB_PATH, JSON.stringify(defaultData, null, 2), 'utf8');
+  try {
+    fs.writeFileSync(DB_PATH, JSON.stringify(defaultData, null, 2), 'utf8');
+  } catch {
+    // Readonly fallback
+  }
+
+  memoryDb = defaultData;
   return defaultData;
 }
 
@@ -154,10 +187,34 @@ export function getDb(): DatabaseData {
 }
 
 export function saveDb(data: DatabaseData): void {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  memoryDb = data;
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    const tempPath = DB_PATH + '.tmp';
+    fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tempPath, DB_PATH);
+  } catch {
+    // In serverless readonly environments, writing to disk fails silently;
+    // in-memory persists for execution duration and Redis syncs below
   }
-  const tempPath = DB_PATH + '.tmp';
-  fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf8');
-  fs.renameSync(tempPath, DB_PATH);
+
+  // If Vercel Storage / Upstash Redis is connected, sync asynchronously
+  if (getRedisConfig()) {
+    writeToRedis('ohod_store_data', data).catch(console.error);
+  }
+}
+
+// Async hydration from Vercel Redis (if active)
+export async function getDbAsync(): Promise<DatabaseData> {
+  const current = getDb();
+  if (getRedisConfig()) {
+    const remoteData = await fetchFromRedis('ohod_store_data');
+    if (remoteData && remoteData.admins) {
+      memoryDb = remoteData;
+      return remoteData;
+    }
+  }
+  return current;
 }
