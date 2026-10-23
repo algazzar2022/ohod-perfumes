@@ -30,9 +30,9 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://ohodperfumes.com/images/logo/don-logo-160.png',
-        width: 1200,
-        height: 630,
+        url: 'https://res.cloudinary.com/kuypfdzb/image/upload/v1792719223/807590317_1763755772421552_7849880766636249819_n.jpg',
+        width: 1000,
+        height: 1000,
         alt: 'عطور أحد | Ohod Perfumes',
       },
     ],
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'عطور أحد | Ohod Perfumes - عطور فرنسية وشرقية أصلية فاخرة في مصر',
     description: 'تسوق أفضل العطور والزيوت العطرية المركزة بدون كحول في مصر من عطور أحد (Ohod Perfumes). عطور فرنسية وشرقية رجالي وحريمي، ثبات عالي وتوصيل سريع لكافة المحافظات مع دفع سهل عبر انستاباي وفودافون كاش.',
-    images: ['https://ohodperfumes.com/images/logo/don-logo-160.png'],
+    images: ['https://res.cloudinary.com/kuypfdzb/image/upload/v1792719223/807590317_1763755772421552_7849880766636249819_n.jpg'],
     creator: '@ohodperfumes',
   },
   icons: {

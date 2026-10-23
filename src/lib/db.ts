@@ -51,8 +51,8 @@ const DEFAULT_SETTINGS: StoreSettings = {
   siteTitle: 'عطور أحد | Ohod Perfumes - عطور فرنسية وشرقية أصلية فاخرة في مصر',
   metaDescription: 'تسوق أفضل العطور والزيوت العطرية المركزة بدون كحول في مصر من عطور أحد (Ohod Perfumes). عطور فرنسية وشرقية رجالي وحريمي، ثبات عالي وتوصيل سريع لكافة المحافظات مع دفع سهل عبر انستاباي وفودافون كاش.',
   metaKeywords: 'عطور أحد, Ohod Perfumes, عطور فرنسية, عطور شرقية, دون الأصلي, دون الأبيض, دون البينك, زيوت عطرية, عطور بدون كحول, عطور مصر, شراء عطور أونلاين',
-  canonicalUrl: 'https://ohod-perfumes.com',
-  ogImage: '/images/logo/don-logo-160.png',
+  canonicalUrl: 'https://ohodperfumes.com',
+  ogImage: 'https://res.cloudinary.com/kuypfdzb/image/upload/v1792719223/807590317_1763755772421552_7849880766636249819_n.jpg',
   twitterHandle: '@ohodperfumes',
   googleSiteVerification: '',
   robotsIndexing: true
