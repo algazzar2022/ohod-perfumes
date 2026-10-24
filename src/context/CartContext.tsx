@@ -11,6 +11,7 @@ export interface CartItem {
   priceAfterDiscount?: number;
   quantity: number;
   image: string;
+  stockQuantity?: number;
 }
 
 interface CartContextType {
@@ -60,18 +61,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, isLoaded]);
 
   const addToCart = (product: Product, quantity = 1) => {
+    const availableStock = product.stockQuantity !== undefined ? product.stockQuantity : (product.inStock ? 50 : 0);
+
+    if (!product.inStock || availableStock <= 0) {
+      setToast(`عذراً، "${product.nameAr}" نفذت كميته من المخزن حالياً`);
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+
     const effectivePrice = product.priceAfterDiscount && product.priceAfterDiscount > 0
       ? product.priceAfterDiscount
       : product.price;
 
     const img = product.images && product.images.length > 0 ? product.images[0] : '/images/logo/don-logo-160.png';
 
+    let exceeded = false;
     setItems(prev => {
       const existing = prev.find(item => item.productId === product.id);
       if (existing) {
+        const nextQty = existing.quantity + quantity;
+        if (nextQty > availableStock) {
+          exceeded = true;
+          return prev.map(item =>
+            item.productId === product.id
+              ? { ...item, quantity: availableStock, stockQuantity: availableStock }
+              : item
+          );
+        }
         return prev.map(item =>
           item.productId === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: nextQty, stockQuantity: availableStock }
             : item
         );
       }
@@ -83,13 +102,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           nameAr: product.nameAr,
           price: effectivePrice,
           priceAfterDiscount: product.priceAfterDiscount,
-          quantity,
-          image: img
+          quantity: Math.min(quantity, availableStock),
+          image: img,
+          stockQuantity: availableStock
         }
       ];
     });
 
-    setToast(`تمت إضافة "${product.nameAr}" إلى السلة`);
+    if (exceeded) {
+      setToast(`أقصى كمية متوفرة في المخزن من "${product.nameAr}" هي ${availableStock} قطع`);
+    } else {
+      setToast(`تمت إضافة "${product.nameAr}" إلى السلة`);
+    }
     setTimeout(() => {
       setToast(null);
     }, 3000);
@@ -105,9 +129,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     setItems(prev =>
-      prev.map(item =>
-        item.productId === productId ? { ...item, quantity } : item
-      )
+      prev.map(item => {
+        if (item.productId === productId) {
+          const max = item.stockQuantity !== undefined ? item.stockQuantity : 999;
+          const clamped = Math.min(quantity, max);
+          if (quantity > max) {
+            setToast(`أقصى كمية متوفرة في المخزن هي ${max} قطع`);
+            setTimeout(() => setToast(null), 3000);
+          }
+          return { ...item, quantity: clamped };
+        }
+        return item;
+      })
     );
   };
 

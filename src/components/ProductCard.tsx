@@ -31,10 +31,12 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
   const displayPrice = hasDiscount ? product.priceAfterDiscount : product.price;
   const imageSrc = product.images && product.images[0] ? product.images[0] : '/images/logo/don-logo-160.png';
 
+  const isOutOfStock = !product.inStock || (product.stockQuantity !== undefined && product.stockQuantity <= 0);
+
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!product.inStock) return;
+    if (isOutOfStock) return;
     addToCart(product, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
@@ -59,7 +61,7 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
               وفر {discountPercent}٪
             </span>
           )}
-          {!product.inStock && (
+          {isOutOfStock && (
             <span className="bg-stone-900/80 backdrop-blur-xs text-white text-xs font-bold px-2.5 py-1 rounded-full">
               نفذت الكمية
             </span>
@@ -116,16 +118,18 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
           {/* Add to Cart button */}
           <button
             onClick={handleAdd}
-            disabled={!product.inStock}
+            disabled={isOutOfStock}
             className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-xs cursor-pointer ${
-              !product.inStock
+              isOutOfStock
                 ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
                 : added
                 ? 'bg-emerald-600 text-white'
                 : 'bg-amber-600 hover:bg-amber-700 text-white active:scale-95'
             }`}
           >
-            {added ? (
+            {isOutOfStock ? (
+              <span>نفذت الكمية</span>
+            ) : added ? (
               <>
                 <Check className="w-4 h-4" />
                 <span className="hidden xs:inline">تمت الإضافة</span>

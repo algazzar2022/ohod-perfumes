@@ -605,15 +605,16 @@ export default function AdminPage() {
   const handleToggleStock = async (prod: Product) => {
     try {
       const newStock = !prod.inStock;
+      const newQty = newStock ? (prod.stockQuantity && prod.stockQuantity > 0 ? prod.stockQuantity : 50) : 0;
       const res = await fetch(`/api/products/${prod.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inStock: newStock })
+        body: JSON.stringify({ inStock: newStock, stockQuantity: newQty })
       });
       const data = await res.json();
       if (data.success) {
         setProducts(prev =>
-          prev.map(p => (p.id === prod.id ? { ...p, inStock: newStock } : p))
+          prev.map(p => (p.id === prod.id ? { ...p, inStock: newStock, stockQuantity: newQty } : p))
         );
         showToast(newStock ? 'تم التعيين كـ متوفر' : 'تم التعيين كـ نفذت الكمية');
       }

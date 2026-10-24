@@ -215,14 +215,20 @@ export default function ProductDetailClient() {
 
                 {/* Stock status */}
                 <div className="flex items-center gap-2 mb-6">
-                  {product.inStock ? (
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      متوفر في المخزن للطلب الفوري
+                  {(!product.inStock || (product.stockQuantity !== undefined && product.stockQuantity <= 0)) ? (
+                    <span className="text-xs font-bold text-red-700 bg-red-50 px-3 py-1.5 rounded-md border border-red-200 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-red-500" />
+                      نفذت الكمية حالياً من المخزن
+                    </span>
+                  ) : (product.stockQuantity !== undefined && product.stockQuantity <= 5) ? (
+                    <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1.5 rounded-md border border-amber-300 flex items-center gap-1.5">
+                      <span>⚠️</span>
+                      متبقي في المخزن {product.stockQuantity} قطع فقط! سارع بالطلب
                     </span>
                   ) : (
-                    <span className="text-xs font-bold text-red-700 bg-red-50 px-2.5 py-1 rounded-md border border-red-200">
-                      نفذت الكمية حالياً
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-md border border-emerald-200">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      متوفر في المخزن ({product.stockQuantity ?? 50} قطعة)
                     </span>
                   )}
                 </div>
@@ -260,8 +266,8 @@ export default function ProductDetailClient() {
                   <div className="flex items-center border border-stone-300 rounded-xl overflow-hidden bg-white shadow-xs">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      disabled={quantity <= 1 || !product.inStock}
-                      className="px-3.5 py-2 text-stone-600 hover:bg-stone-100 disabled:opacity-40 transition"
+                      disabled={quantity <= 1 || !product.inStock || (product.stockQuantity !== undefined && product.stockQuantity <= 0)}
+                      className="px-3.5 py-2 text-stone-600 hover:bg-stone-100 disabled:opacity-40 transition cursor-pointer"
                       aria-label="تقليل الكمية"
                     >
                       <Minus className="w-4 h-4" />
@@ -270,9 +276,12 @@ export default function ProductDetailClient() {
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      disabled={!product.inStock}
-                      className="px-3.5 py-2 text-stone-600 hover:bg-stone-100 disabled:opacity-40 transition"
+                      onClick={() => {
+                        const max = product.stockQuantity !== undefined ? product.stockQuantity : 999;
+                        setQuantity(Math.min(max, quantity + 1));
+                      }}
+                      disabled={!product.inStock || (product.stockQuantity !== undefined && (product.stockQuantity <= 0 || quantity >= product.stockQuantity))}
+                      className="px-3.5 py-2 text-stone-600 hover:bg-stone-100 disabled:opacity-40 transition cursor-pointer"
                       aria-label="زيادة الكمية"
                     >
                       <Plus className="w-4 h-4" />
@@ -289,16 +298,18 @@ export default function ProductDetailClient() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleAddToCart}
-                    disabled={!product.inStock}
-                    className={`flex-1 py-4 px-8 rounded-xl font-bold text-base flex items-center justify-center gap-2 shadow-lg transition duration-200 active:scale-98 ${
-                      !product.inStock
+                    disabled={!product.inStock || (product.stockQuantity !== undefined && product.stockQuantity <= 0)}
+                    className={`flex-1 py-4 px-8 rounded-xl font-bold text-base flex items-center justify-center gap-2 shadow-lg transition duration-200 active:scale-98 cursor-pointer ${
+                      !product.inStock || (product.stockQuantity !== undefined && product.stockQuantity <= 0)
                         ? 'bg-stone-200 text-stone-400 cursor-not-allowed shadow-none'
                         : isAdded
                         ? 'bg-emerald-600 text-white'
                         : 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-amber-600/30'
                     }`}
                   >
-                    {isAdded ? (
+                    {!product.inStock || (product.stockQuantity !== undefined && product.stockQuantity <= 0) ? (
+                      <span>نفذت الكمية حالياً</span>
+                    ) : isAdded ? (
                       <>
                         <Check className="w-5 h-5" />
                         <span>تمت الإضافة بنجاح!</span>

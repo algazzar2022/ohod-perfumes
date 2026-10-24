@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbAsync, saveDbAsync, Order } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(req: NextRequest) {
   try {
@@ -35,6 +36,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'السلة فارغة' }, { status: 400 });
     }
 
+    // 1. Validate Stock before placing order
+    for (const it of body.items) {
+      const prod = db.products.find(p => p.id === Number(it.productId));
+      const requestedQty = Math.max(1, Number(it.quantity) || 1);
+
+      if (!prod) continue;
+
+      const availableQty = prod.stockQuantity !== undefined ? prod.stockQuantity : (prod.inStock ? 50 : 0);
+
+      if (!prod.inStock || availableQty <= 0) {
+        return NextResponse.json({
+          success: false,
+          error: `عذراً، المنتج "${prod.nameAr}" نفذت كميته من المخزن حالياً.`
+        }, { status: 400 });
+      }
+
+      if (requestedQty > availableQty) {
+        return NextResponse.json({
+          success: false,
+          error: `عذراً، الكمية المتوفرة من "${prod.nameAr}" في المخزن هي ${availableQty} قطعة فقط.`
+        }, { status: 400 });
+      }
+    }
+
     const gov = db.governorates.find(g => g.id === Number(body.governorateId));
     const shippingFee = gov ? gov.shippingFee : 90;
 
@@ -55,6 +80,20 @@ export async function POST(req: NextRequest) {
         image: prod && prod.images && prod.images[0] ? prod.images[0] : (it.image || '/images/logo/don-logo-160.png')
       };
     });
+
+    // 2. Deduct inventory count for each ordered product
+    for (const it of items) {
+      const prod = db.products.find(p => p.id === it.productId);
+      if (prod) {
+        const prevQty = prod.stockQuantity !== undefined ? prod.stockQuantity : (prod.inStock ? 50 : 0);
+        const nextQty = Math.max(0, prevQty - it.quantity);
+        prod.stockQuantity = nextQty;
+        if (nextQty === 0) {
+          prod.inStock = false;
+        }
+        prod.updatedAt = new Date().toISOString();
+      }
+    }
 
     const total = subtotal + shippingFee;
     const orderNum = 'OHOD-' + Math.floor(100000 + Math.random() * 900000);
@@ -80,6 +119,13 @@ export async function POST(req: NextRequest) {
 
     db.orders.unshift(newOrder);
     await saveDbAsync(db);
+
+    try {
+      revalidatePath('/', 'page');
+      revalidatePath('/', 'layout');
+    } catch {
+      // Ignore
+    }
 
     return NextResponse.json({ success: true, order: newOrder });
   } catch (err: unknown) {

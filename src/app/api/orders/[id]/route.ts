@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDbAsync, saveDb } from '@/lib/db';
+import { getDbAsync, saveDbAsync } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(
   req: NextRequest,
@@ -35,12 +36,50 @@ export async function PUT(
       return NextResponse.json({ success: false, error: 'الطلب غير موجود' }, { status: 404 });
     }
 
-    if (body.status) {
-      db.orders[index].status = body.status;
-    }
-    db.orders[index].updatedAt = new Date().toISOString();
+    const oldStatus = db.orders[index].status;
+    const newStatus = body.status;
 
-    saveDb(db);
+    if (newStatus && newStatus !== oldStatus) {
+      db.orders[index].status = newStatus;
+
+      // If order is cancelled, return items to inventory
+      if (newStatus === 'cancelled' && oldStatus !== 'cancelled') {
+        for (const item of db.orders[index].items) {
+          const prod = db.products.find(p => p.id === item.productId);
+          if (prod) {
+            prod.stockQuantity = (prod.stockQuantity ?? 0) + item.quantity;
+            if (prod.stockQuantity > 0) {
+              prod.inStock = true;
+            }
+            prod.updatedAt = new Date().toISOString();
+          }
+        }
+      }
+      // If order was cancelled and now re-activated
+      else if (oldStatus === 'cancelled' && newStatus !== 'cancelled') {
+        for (const item of db.orders[index].items) {
+          const prod = db.products.find(p => p.id === item.productId);
+          if (prod) {
+            prod.stockQuantity = Math.max(0, (prod.stockQuantity ?? 50) - item.quantity);
+            if (prod.stockQuantity === 0) {
+              prod.inStock = false;
+            }
+            prod.updatedAt = new Date().toISOString();
+          }
+        }
+      }
+    }
+
+    db.orders[index].updatedAt = new Date().toISOString();
+    await saveDbAsync(db);
+
+    try {
+      revalidatePath('/', 'page');
+      revalidatePath('/', 'layout');
+    } catch {
+      // Ignore
+    }
+
     return NextResponse.json({ success: true, order: db.orders[index] });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -62,7 +101,7 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'الطلب غير موجود' }, { status: 404 });
     }
 
-    saveDb(db);
+    await saveDbAsync(db);
     return NextResponse.json({ success: true, message: 'تم حذف الطلب بنجاح' });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
