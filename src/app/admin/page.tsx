@@ -892,11 +892,6 @@ export default function AdminPage() {
               </span>
             </div>
           </Link>
-          <span className="bg-amber-600/30 text-amber-300 text-xs px-2.5 py-0.5 rounded-full font-bold border border-amber-500/30">
-            {currentUser?.role === 'all' || (currentUser?.permissions && currentUser.permissions.length === ALL_ADMIN_PERMISSIONS.length)
-              ? 'لوحة التحكم الإدارية'
-              : 'لوحة التحكم (مخصصة)'}
-          </span>
         </div>
 
         <div className="flex items-center gap-3">
