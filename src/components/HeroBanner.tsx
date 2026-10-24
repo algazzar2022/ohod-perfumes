@@ -16,20 +16,14 @@ export default function HeroBanner({ settings }: HeroBannerProps) {
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
-  const isEnabled = settings?.heroBannerEnabled ?? true;
+  // If settings not loaded or banner disabled, do not render any placeholder or default image
+  const isEnabled = Boolean(settings && settings.heroBannerEnabled !== false);
   const bannerType = settings?.heroBannerType ?? 'slideshow';
   const videoUrl = settings?.heroVideoUrl || '';
 
   const slides: HeroSlide[] = (settings?.heroSlides && settings.heroSlides.length > 0)
     ? settings.heroSlides.filter(s => Boolean(s.image))
-    : [
-        {
-          image: 'https://res.cloudinary.com/kuypfdzb/image/upload/v1792719223/807590317_1763755772421552_7849880766636249819_n.jpg',
-          title: 'عطور أحد | فخامة وثبات استثنائي',
-          subtitle: 'أرقى العطور الفرنسية والشرقية الأصلية بدون كحول',
-          link: '/categories/7'
-        }
-      ];
+    : [];
 
   const totalSlides = slides.length;
 

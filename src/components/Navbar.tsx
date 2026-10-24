@@ -5,22 +5,33 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingBag, Search } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { StoreSettings } from '@/lib/types';
 
 interface NavbarProps {
   onSearchChange?: (term: string) => void;
   searchTerm?: string;
+  initialSettings?: StoreSettings | null;
 }
 
-export default function Navbar({ onSearchChange, searchTerm = '' }: NavbarProps) {
+export default function Navbar({ onSearchChange, searchTerm = '', initialSettings }: NavbarProps) {
   const { totalItems, toggleCart } = useCart();
   const [showSearch, setShowSearch] = useState(false);
 
+  // Initialize with false or real initialSettings so the banner NEVER flashes during page load/refresh
   const [banner, setBanner] = useState<{ enabled: boolean; text: string }>({
-    enabled: true,
-    text: '🚚 شحن سريع لجميع محافظات مصر | دفع سهل وآمن عبر انستاباي وفودافون كاش | خصومات حصرية لفترة محدودة'
+    enabled: Boolean(initialSettings?.bannerEnabled),
+    text: initialSettings?.bannerText || ''
   });
 
   useEffect(() => {
+    if (initialSettings) {
+      setBanner({
+        enabled: Boolean(initialSettings.bannerEnabled),
+        text: initialSettings.bannerText || ''
+      });
+      return;
+    }
+
     async function loadBannerSettings() {
       try {
         const res = await fetch('/api/settings');
@@ -36,7 +47,7 @@ export default function Navbar({ onSearchChange, searchTerm = '' }: NavbarProps)
       }
     }
     loadBannerSettings();
-  }, []);
+  }, [initialSettings]);
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
