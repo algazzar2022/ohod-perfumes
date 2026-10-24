@@ -23,13 +23,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     ];
 
-    const categoryRoutes: MetadataRoute.Sitemap = (db.categories || []).map(cat => ({
-      url: `${baseUrl}/categories/${cat.id}`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    }));
-
     const productRoutes: MetadataRoute.Sitemap = (db.products || []).map(prod => ({
       url: `${baseUrl}/products/${prod.id}`,
       lastModified: prod.updatedAt ? new Date(prod.updatedAt) : now,
@@ -37,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     }));
 
-    return [...staticRoutes, ...categoryRoutes, ...productRoutes];
+    return [...staticRoutes, ...productRoutes];
   } catch {
     return [
       {

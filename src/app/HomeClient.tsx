@@ -41,6 +41,39 @@ export default function HomeClient({
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
 
+  // Read category from URL query parameters (e.g. ?category=6)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const catParam = params.get('category');
+      if (catParam) {
+        const catId = Number(catParam);
+        if (!isNaN(catId)) {
+          setSelectedCategory(catId);
+          setTimeout(() => {
+            const el = document.getElementById('products');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth' });
+            }
+          }, 100);
+        }
+      }
+    }
+  }, []);
+
+  const handleSelectCategory = (catId: number | 'all') => {
+    setSelectedCategory(catId);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (catId === 'all') {
+        url.searchParams.delete('category');
+      } else {
+        url.searchParams.set('category', String(catId));
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
+
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close custom sort dropdown when clicking outside
@@ -167,7 +200,7 @@ export default function HomeClient({
             <div className="mb-6 w-full">
               <div className="flex items-center gap-2.5 overflow-x-auto pb-2.5 pt-0.5 sm:flex-wrap lg:grid lg:grid-cols-8 scrollbar-none no-scrollbar w-full">
                 <button
-                  onClick={() => setSelectedCategory('all')}
+                  onClick={() => handleSelectCategory('all')}
                   className={`flex-shrink-0 whitespace-nowrap sm:flex-1 lg:w-full min-h-[48px] py-2.5 px-4 sm:px-3 rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-2xs flex items-center justify-center gap-2 text-center cursor-pointer ${
                     selectedCategory === 'all'
                       ? 'bg-amber-700 text-white shadow-amber-700/20 shadow-xs'
@@ -186,7 +219,7 @@ export default function HomeClient({
                   return (
                     <button
                       key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
+                      onClick={() => handleSelectCategory(cat.id)}
                       className={`flex-shrink-0 whitespace-nowrap sm:flex-1 lg:w-full min-h-[48px] py-2.5 px-4 sm:px-3 rounded-xl text-xs sm:text-sm font-bold transition duration-200 shadow-2xs flex items-center justify-center gap-2 text-center cursor-pointer ${
                         selectedCategory === cat.id
                           ? 'bg-amber-700 text-white shadow-amber-700/20 shadow-xs'

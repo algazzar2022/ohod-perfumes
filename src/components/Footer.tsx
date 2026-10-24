@@ -140,37 +140,37 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-sm text-stone-400">
               <li>
-                <Link href="/categories/1" className="hover:text-amber-400 transition">
+                <Link href="/?category=1" className="hover:text-amber-400 transition">
                   عطور رجالية
                 </Link>
               </li>
               <li>
-                <Link href="/categories/2" className="hover:text-amber-400 transition">
+                <Link href="/?category=2" className="hover:text-amber-400 transition">
                   عطور نسائية
                 </Link>
               </li>
               <li>
-                <Link href="/categories/3" className="hover:text-amber-400 transition">
+                <Link href="/?category=3" className="hover:text-amber-400 transition">
                   عطور للجنسين
                 </Link>
               </li>
               <li>
-                <Link href="/categories/4" className="hover:text-amber-400 transition">
+                <Link href="/?category=4" className="hover:text-amber-400 transition">
                   عطور جاهزة
                 </Link>
               </li>
               <li>
-                <Link href="/categories/5" className="hover:text-amber-400 transition">
+                <Link href="/?category=5" className="hover:text-amber-400 transition">
                   بخور ومباخر
                 </Link>
               </li>
               <li>
-                <Link href="/categories/6" className="hover:text-amber-400 transition">
+                <Link href="/?category=6" className="hover:text-amber-400 transition">
                   شخصية ومنزلية
                 </Link>
               </li>
               <li>
-                <Link href="/categories/7" className="hover:text-amber-400 transition text-amber-400 font-bold">
+                <Link href="/?category=7" className="hover:text-amber-400 transition text-amber-400 font-bold">
                   عروض وخصومات خاصة 🔥
                 </Link>
               </li>

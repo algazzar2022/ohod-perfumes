@@ -32,6 +32,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const phoneRegex = /^01[0125][0-9]{8}$/;
+    const cleanCustomerPhone = String(body.phone).trim().replace(/\s+/g, '');
+    if (!phoneRegex.test(cleanCustomerPhone)) {
+      return NextResponse.json(
+        { success: false, error: 'يرجى إدخال رقم هاتف مصري صحيح مكون من 11 رقماً يبدأ بـ (010, 011, 012, 015)' },
+        { status: 400 }
+      );
+    }
+
+    if (body.paymentMethod === 'instapay' || body.paymentMethod === 'vodafone_cash') {
+      const cleanPaymentPhone = String(body.paymentSenderInfo || '').trim().replace(/\s+/g, '');
+      if (!phoneRegex.test(cleanPaymentPhone)) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'يرجى إدخال رقم هاتف مصري صحيح محول منه مكون من 11 رقماً يبدأ بـ (010, 011, 012, 015)'
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     if (!Array.isArray(body.items) || body.items.length === 0) {
       return NextResponse.json({ success: false, error: 'السلة فارغة' }, { status: 400 });
     }

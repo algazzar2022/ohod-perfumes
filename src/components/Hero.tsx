@@ -32,7 +32,7 @@ export default function Hero() {
               تسوق المنتجات الآن
             </a>
             <Link
-              href="/categories/27"
+              href="/?category=7"
               className="bg-stone-800/80 hover:bg-stone-800 border border-amber-500/30 text-amber-300 font-bold px-8 py-3.5 rounded-full transition duration-200"
             >
               العروض والخصومات 🔥

@@ -40,7 +40,8 @@ import {
   Sparkles,
   Upload,
   ImageIcon,
-  Film
+  Film,
+  ArrowRight
 } from 'lucide-react';
 import { Product, Category, Governorate, Order, StoreSettings, AdminUser, AdminTab, ALL_ADMIN_PERMISSIONS } from '@/lib/types';
 
@@ -1215,6 +1216,217 @@ export default function AdminPage() {
 
           {/* TAB 2: PRODUCTS */}
           {activeTab === 'products' && (
+            productModalOpen ? (
+              <div className="space-y-6">
+                {/* Back button & Breadcrumb */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-200">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProductModalOpen(false);
+                      setEditingProduct(null);
+                    }}
+                    className="inline-flex items-center gap-2 text-stone-700 hover:text-amber-800 font-bold text-sm bg-white hover:bg-stone-50 border border-stone-200 px-4 py-2.5 rounded-xl shadow-xs transition cursor-pointer w-fit"
+                  >
+                    <ArrowRight className="w-4 h-4 text-amber-600" />
+                    <span>العودة إلى قائمة المنتجات</span>
+                  </button>
+                  <span className="text-xs text-stone-400 font-medium">
+                    لوحة التحكم / إدارة المنتجات / {editingProduct ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد'}
+                  </span>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-stone-200 p-6 sm:p-8 shadow-xs max-w-3xl space-y-6">
+                  <div className="pb-4 border-b border-stone-100">
+                    <h2 className="text-xl sm:text-2xl font-black text-stone-900">
+                      {editingProduct ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد للمتجر'}
+                    </h2>
+                    <p className="text-stone-500 text-xs sm:text-sm mt-1">
+                      قم بملء تفاصيل المنتج والأسعار والمخزون، ثم اضغط حفظ للتحديث المباشر.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSaveProduct} className="space-y-5">
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        اسم المنتج بالعربي <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="مثال: دون الأبيض 6مل"
+                        value={prodForm.nameAr}
+                        onChange={(e) => setProdForm({ ...prodForm, nameAr: e.target.value })}
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        القسم / الفئة <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={prodForm.categoryId}
+                        onChange={(e) => setProdForm({ ...prodForm, categoryId: Number(e.target.value) })}
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none font-medium focus:border-amber-600 focus:bg-white transition"
+                      >
+                        {categories.map(c => (
+                          <option key={c.id} value={c.id}>{c.nameAr}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                          السعر الأساسي (ج.م) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          required
+                          value={prodForm.price}
+                          onChange={(e) => setProdForm({ ...prodForm, price: Number(e.target.value) })}
+                          className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                          السعر بعد الخصم (ج.م)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="0 إذا لا يوجد خصم"
+                          value={prodForm.priceAfterDiscount}
+                          onChange={(e) => setProdForm({ ...prodForm, priceAfterDiscount: Number(e.target.value) })}
+                          className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                          العدد بالمخزون <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          required
+                          placeholder="العدد المتوفر"
+                          value={prodForm.stockQuantity}
+                          onChange={(e) => {
+                            const qty = Number(e.target.value);
+                            setProdForm({
+                              ...prodForm,
+                              stockQuantity: qty,
+                              inStock: qty > 0
+                            });
+                          }}
+                          className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        صورة المنتج (رفع مباشر عبر Cloudinary مع ضغط الحجم)
+                      </label>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <label className={`flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-stone-300 hover:border-amber-500 rounded-xl py-3 px-4 bg-stone-50 cursor-pointer transition ${imageUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleUploadImageFile}
+                              className="hidden"
+                            />
+                            {imageUploading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+                                <span className="text-xs font-bold text-stone-600">جاري الرفع والضغط على Cloudinary...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 text-amber-600" />
+                                <span className="text-xs font-bold text-stone-700">اختر صورة من جهازك (رفع وضغط فوري)</span>
+                              </>
+                            )}
+                          </label>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder="أو ضع رابط الصورة مباشرة هنا"
+                            value={prodForm.image}
+                            onChange={(e) => setProdForm({ ...prodForm, image: e.target.value })}
+                            className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-xs outline-none focus:border-amber-600 font-mono"
+                          />
+                          {prodForm.image && (
+                            <div className="relative w-9 h-9 rounded-lg overflow-hidden border border-stone-300 flex-shrink-0 bg-stone-100">
+                              <Image
+                                src={prodForm.image}
+                                alt="معاينة"
+                                fill
+                                className="object-cover"
+                                sizes="36px"
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-[11px] text-stone-400 block">
+                          ⚡ يتم تقليل وضغط حجم الصورة تلقائياً وتحويلها لصيغ الويب الحديثة (WebP / AVIF) دون فقدان الجودة.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        وصف ومواصفات المنتج
+                      </label>
+                      <textarea
+                        rows={3}
+                        placeholder="وصف تفصيلي للمنتج ومواصفاته ومميزاته..."
+                        value={prodForm.descriptionAr}
+                        onChange={(e) => setProdForm({ ...prodForm, descriptionAr: e.target.value })}
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-2">
+                      <input
+                        type="checkbox"
+                        id="prodInStock"
+                        checked={prodForm.inStock}
+                        onChange={(e) => setProdForm({ ...prodForm, inStock: e.target.checked })}
+                        className="w-4 h-4 text-amber-600 rounded"
+                      />
+                      <label htmlFor="prodInStock" className="text-xs font-bold text-stone-700 cursor-pointer">
+                        المنتج متوفر في المخزن حالياً
+                      </label>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 pt-4 border-t border-stone-100">
+                      <button
+                        type="submit"
+                        className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-2.5 rounded-xl shadow-md transition text-sm cursor-pointer"
+                      >
+                        {editingProduct ? 'حفظ التعديلات' : 'إضافة المنتج للمتجر'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalOpen(false);
+                          setEditingProduct(null);
+                        }}
+                        className="px-6 py-2.5 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-50 font-bold text-sm cursor-pointer transition"
+                      >
+                        إلغاء والعودة
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            ) : (
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -1354,14 +1566,14 @@ export default function AdminPage() {
                                   <button
                                     onClick={() => handleOpenEditProduct(prod)}
                                     className="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition"
-                                    title="تعديل العطر"
+                                    title="تعديل المنتج"
                                   >
                                     <Edit className="w-4 h-4" />
                                   </button>
                                   <button
                                     onClick={() => handleDeleteProduct(prod.id)}
                                     className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition"
-                                    title="حذف العطر"
+                                    title="حذف المنتج"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>
@@ -1375,6 +1587,7 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
+          )
           )}
 
           {/* TAB 3: CATEGORIES */}
@@ -2592,201 +2805,6 @@ export default function AdminPage() {
           )}
         </main>
       </div>
-
-      {/* MODAL: ADD / EDIT PRODUCT */}
-      {productModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-              <h3 className="text-lg font-bold text-stone-900">
-                {editingProduct ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد للمتجر'}
-              </h3>
-              <button
-                onClick={() => setProductModalOpen(false)}
-                className="p-1 text-stone-400 hover:text-stone-700 rounded-full"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveProduct} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  اسم المنتج بالعربي <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="مثال: دون الأبيض 6مل"
-                  value={prodForm.nameAr}
-                  onChange={(e) => setProdForm({ ...prodForm, nameAr: e.target.value })}
-                  className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  القسم / الفئة <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={prodForm.categoryId}
-                  onChange={(e) => setProdForm({ ...prodForm, categoryId: Number(e.target.value) })}
-                  className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none font-medium"
-                >
-                  {categories.map(c => (
-                    <option key={c.id} value={c.id}>{c.nameAr}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    السعر الأساسي (ج.م) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={prodForm.price}
-                    onChange={(e) => setProdForm({ ...prodForm, price: Number(e.target.value) })}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    السعر بعد الخصم (ج.م)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="0 إذا لا يوجد خصم"
-                    value={prodForm.priceAfterDiscount}
-                    onChange={(e) => setProdForm({ ...prodForm, priceAfterDiscount: Number(e.target.value) })}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    العدد بالمخزون <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    required
-                    placeholder="العدد المتوفر"
-                    value={prodForm.stockQuantity}
-                    onChange={(e) => {
-                      const qty = Number(e.target.value);
-                      setProdForm({
-                        ...prodForm,
-                        stockQuantity: qty,
-                        inStock: qty > 0
-                      });
-                    }}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600 font-bold"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  صورة المنتج (رفع مباشر عبر Cloudinary مع ضغط الحجم)
-                </label>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <label className={`flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-stone-300 hover:border-amber-500 rounded-xl py-3 px-4 bg-stone-50 cursor-pointer transition ${imageUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleUploadImageFile}
-                        className="hidden"
-                      />
-                      {imageUploading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
-                          <span className="text-xs font-bold text-stone-600">جاري الرفع والضغط على Cloudinary...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-4 h-4 text-amber-600" />
-                          <span className="text-xs font-bold text-stone-700">اختر صورة من جهازك (رفع وضغط فوري)</span>
-                        </>
-                      )}
-                    </label>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="أو ضع رابط الصورة مباشرة هنا"
-                      value={prodForm.image}
-                      onChange={(e) => setProdForm({ ...prodForm, image: e.target.value })}
-                      className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-xs outline-none focus:border-amber-600 font-mono"
-                    />
-                    {prodForm.image && (
-                      <div className="relative w-9 h-9 rounded-lg overflow-hidden border border-stone-300 flex-shrink-0 bg-stone-100">
-                        <Image
-                          src={prodForm.image}
-                          alt="معاينة"
-                          fill
-                          className="object-cover"
-                          sizes="36px"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-[11px] text-stone-400 block">
-                    ⚡ يتم تقليل وضغط حجم الصورة تلقائياً وتحويلها لصيغ الويب الحديثة (WebP / AVIF) دون فقدان الجودة.
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">
-                  وصف ومواصفات المنتج
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="وصف تفصيلي للمنتج ومواصفاته ومميزاته..."
-                  value={prodForm.descriptionAr}
-                  onChange={(e) => setProdForm({ ...prodForm, descriptionAr: e.target.value })}
-                  className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="prodInStock"
-                  checked={prodForm.inStock}
-                  onChange={(e) => setProdForm({ ...prodForm, inStock: e.target.checked })}
-                  className="w-4 h-4 text-amber-600 rounded"
-                />
-                <label htmlFor="prodInStock" className="text-xs font-bold text-stone-700 cursor-pointer">
-                  المنتج متوفر في المخزن حالياً
-                </label>
-              </div>
-
-              <div className="flex gap-3 pt-3">
-                <button
-                  type="submit"
-                  className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl shadow-md transition text-sm"
-                >
-                  حفظ المنتج
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setProductModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-50 font-bold text-sm"
-                >
-                  إلغاء
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* MODAL: ADD / EDIT CATEGORY */}
       {categoryModalOpen && (

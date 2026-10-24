@@ -141,11 +141,21 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!paymentSenderInfo.trim()) {
+    const cleanPaymentSender = paymentSenderInfo.trim().replace(/\s+/g, '');
+    if (!cleanPaymentSender) {
       setErrorMsg(
         paymentMethod === 'instapay'
           ? 'يرجى إدخال رقم الهاتف المحول منه في انستاباي'
           : 'يرجى إدخال رقم محفظة فودافون كاش المحول منها'
+      );
+      return;
+    }
+
+    if (!phoneRegex.test(cleanPaymentSender)) {
+      setErrorMsg(
+        paymentMethod === 'instapay'
+          ? 'يرجى إدخال رقم هاتف مصري صحيح محول منه عبر انستاباي (11 رقماً يبدأ بـ 010 أو 011 أو 012 أو 015)'
+          : 'يرجى إدخال رقم محفظة فودافون كاش مصري صحيح محول منها (11 رقماً يبدأ بـ 010 أو 011 أو 012 أو 015)'
       );
       return;
     }
@@ -425,10 +435,16 @@ export default function CheckoutPage() {
                         type="tel"
                         dir="ltr"
                         required
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={11}
                         placeholder="010XXXXXXXX"
                         value={paymentSenderInfo}
-                        onChange={(e) => setPaymentSenderInfo(e.target.value)}
-                        className="w-full bg-white border border-amber-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-right focus:border-amber-600 outline-none transition"
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 11);
+                          setPaymentSenderInfo(val);
+                        }}
+                        className="w-full bg-white border border-amber-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-right focus:border-amber-600 outline-none transition font-mono tracking-wider"
                       />
                     </div>
                   </div>
@@ -480,10 +496,16 @@ export default function CheckoutPage() {
                         type="tel"
                         dir="ltr"
                         required
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={11}
                         placeholder="010XXXXXXXX"
                         value={paymentSenderInfo}
-                        onChange={(e) => setPaymentSenderInfo(e.target.value)}
-                        className="w-full bg-white border border-red-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-right focus:border-red-600 outline-none transition"
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 11);
+                          setPaymentSenderInfo(val);
+                        }}
+                        className="w-full bg-white border border-red-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-right focus:border-red-600 outline-none transition font-mono tracking-wider"
                       />
                     </div>
                   </div>
