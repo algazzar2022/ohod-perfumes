@@ -2042,19 +2042,19 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      {/* Case 1: Slideshow Configuration (up to 4 slides) */}
+                      {/* Case 1: Slideshow Configuration (up to 10 slides) */}
                       {(settingsForm.heroBannerType ?? 'slideshow') === 'slideshow' && (
                         <div className="space-y-4 pt-1">
                           <div className="flex items-center justify-between">
                             <span className="text-xs sm:text-sm font-bold text-stone-800">
-                              شرائح السلايد شو (حتى 4 صور):
+                              شرائح السلايد شو (حتى 10 صور):
                             </span>
-                            {(settingsForm.heroSlides?.length || 0) < 4 && (
+                            {(settingsForm.heroSlides?.length || 0) < 10 && (
                               <button
                                 type="button"
                                 onClick={() => {
                                   const current = settingsForm.heroSlides || [];
-                                  if (current.length < 4) {
+                                  if (current.length < 10) {
                                     setSettingsForm({
                                       ...settingsForm,
                                       heroSlides: [
@@ -2066,7 +2066,7 @@ export default function AdminPage() {
                                 }}
                                 className="text-xs font-bold text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 cursor-pointer transition flex items-center gap-1"
                               >
-                                <span>+ إضافة شريحة جديدة ({4 - (settingsForm.heroSlides?.length || 0)} متبقي)</span>
+                                <span>+ إضافة شريحة جديدة ({10 - (settingsForm.heroSlides?.length || 0)} متبقي)</span>
                               </button>
                             )}
                           </div>
