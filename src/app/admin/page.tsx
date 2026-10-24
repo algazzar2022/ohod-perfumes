@@ -46,7 +46,7 @@ import { Product, Category, Governorate, Order, StoreSettings, AdminUser, AdminT
 
 const SECTION_CONFIG: { id: AdminTab; label: string; desc: string; icon: any }[] = [
   { id: 'dashboard', label: 'الإحصائيات العامة', desc: 'نظرة عامة على المبيعات والمؤشرات', icon: LayoutDashboard },
-  { id: 'products', label: 'إدارة العطور والمنتجات', desc: 'إضافة وتعديل وحذف وأسعار العطور', icon: Package },
+  { id: 'products', label: 'إدارة المنتجات', desc: 'إضافة وتعديل وحذف وأسعار المنتجات', icon: Package },
   { id: 'categories', label: 'الأقسام والتصنيفات', desc: 'إدارة وتعديل أقسام المتجر', icon: FolderTree },
   { id: 'orders', label: 'إدارة الطلبات والشحن', desc: 'متابعة الطلبات وتحديث حالاتها وتفاصيل العملاء', icon: ShoppingBag },
   { id: 'shipping', label: 'المحافظات وأسعار الشحن', desc: 'تحديد تكاليف الشحن لكل محافظة', icon: Truck },
@@ -124,6 +124,7 @@ export default function AdminPage() {
     priceAfterDiscount: 0,
     descriptionAr: '',
     inStock: true,
+    stockQuantity: 50,
     image: '/images/logo/don-logo-160.png'
   });
   const [imageUploading, setImageUploading] = useState(false);
@@ -469,6 +470,7 @@ export default function AdminPage() {
       priceAfterDiscount: 0,
       descriptionAr: '',
       inStock: true,
+      stockQuantity: 50,
       image: '/images/logo/don-logo-160.png'
     });
     setProductModalOpen(true);
@@ -484,6 +486,7 @@ export default function AdminPage() {
       priceAfterDiscount: prod.priceAfterDiscount || 0,
       descriptionAr: prod.descriptionAr || '',
       inStock: prod.inStock,
+      stockQuantity: prod.stockQuantity !== undefined ? prod.stockQuantity : (prod.inStock ? 50 : 0),
       image: prod.images?.[0] || '/images/logo/don-logo-160.png'
     });
     setProductModalOpen(true);
@@ -553,7 +556,7 @@ export default function AdminPage() {
         });
         const data = await res.json();
         if (data.success) {
-          showToast('تم تحديث العطر بنجاح');
+          showToast('تم تحديث المنتج بنجاح');
           setProductModalOpen(false);
           fetchData();
         } else {
@@ -571,7 +574,7 @@ export default function AdminPage() {
         });
         const data = await res.json();
         if (data.success) {
-          showToast('تمت إضافة العطر بنجاح');
+          showToast('تمت إضافة المنتج بنجاح');
           setProductModalOpen(false);
           fetchData();
         } else {
@@ -961,7 +964,7 @@ export default function AdminPage() {
             >
               <div className="flex items-center gap-3">
                 <Package className="w-4 h-4" />
-                <span>إدارة العطور ({products.length})</span>
+                <span>إدارة المنتجات ({products.length})</span>
               </div>
               {outOfStockCount > 0 && (
                 <span className={`text-[11px] px-2 py-0.5 rounded-full ${
@@ -1122,7 +1125,7 @@ export default function AdminPage() {
 
                 <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs">
                   <div className="flex items-center justify-between text-stone-400 mb-2">
-                    <span className="text-xs font-bold text-stone-600">إجمالي العطور</span>
+                    <span className="text-xs font-bold text-stone-600">إجمالي المنتجات</span>
                     <Package className="w-5 h-5 text-blue-600" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-stone-900">{products.length}</div>
@@ -1137,7 +1140,7 @@ export default function AdminPage() {
                     <AlertTriangle className="w-5 h-5 text-red-500" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-black text-stone-900">{outOfStockCount}</div>
-                  <span className="text-xs text-red-600 font-bold mt-1 block">عطور نفذت كميتها</span>
+                  <span className="text-xs text-red-600 font-bold mt-1 block">منتجات نفذت كميتها</span>
                 </div>
               </div>
 
@@ -1214,15 +1217,15 @@ export default function AdminPage() {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-black text-stone-900 mb-1">إدارة العطور والمنتجات</h1>
-                  <p className="text-stone-500 text-xs sm:text-sm">إضافة عطور جديدة، تعديل الأسعار، وتغيير التوفر في المخزن</p>
+                  <h1 className="text-2xl font-black text-stone-900 mb-1">إدارة المنتجات</h1>
+                  <p className="text-stone-500 text-xs sm:text-sm">إضافة منتجات جديدة، تعديل الأسعار، وتغيير التوفر في المخزن</p>
                 </div>
                 <button
                   onClick={handleOpenAddProduct}
                   className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-md flex items-center justify-center gap-2 transition"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>إضافة عطر جديد</span>
+                  <span>إضافة منتج جديد</span>
                 </button>
               </div>
 
@@ -1261,10 +1264,11 @@ export default function AdminPage() {
                     <thead className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200">
                       <tr>
                         <th className="py-3 px-4">الصورة</th>
-                        <th className="py-3 px-4">اسم العطر</th>
+                        <th className="py-3 px-4">اسم المنتج</th>
                         <th className="py-3 px-4">القسم</th>
                         <th className="py-3 px-4">السعر</th>
                         <th className="py-3 px-4">بعد الخصم</th>
+                        <th className="py-3 px-4">الكمية</th>
                         <th className="py-3 px-4">حالة المخزن</th>
                         <th className="py-3 px-4 text-center">إجراءات</th>
                       </tr>
@@ -1310,6 +1314,17 @@ export default function AdminPage() {
                                 {prod.priceAfterDiscount && prod.priceAfterDiscount > 0
                                   ? `${prod.priceAfterDiscount} ج.م`
                                   : '-'}
+                              </td>
+                              <td className="py-2.5 px-4">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                                  (prod.stockQuantity ?? (prod.inStock ? 50 : 0)) > 5
+                                    ? 'bg-stone-100 text-stone-800'
+                                    : (prod.stockQuantity ?? (prod.inStock ? 50 : 0)) > 0
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {prod.stockQuantity ?? (prod.inStock ? 50 : 0)} قطعة
+                                </span>
                               </td>
                               <td className="py-2.5 px-4">
                                 <button
@@ -2583,7 +2598,7 @@ export default function AdminPage() {
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <h3 className="text-lg font-bold text-stone-900">
-                {editingProduct ? 'تعديل بيانات العطر' : 'إضافة عطر جديد للمتجر'}
+                {editingProduct ? 'تعديل بيانات المنتج' : 'إضافة منتج جديد للمتجر'}
               </h3>
               <button
                 onClick={() => setProductModalOpen(false)}
@@ -2596,7 +2611,7 @@ export default function AdminPage() {
             <form onSubmit={handleSaveProduct} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">
-                  اسم العطر بالعربي <span className="text-red-500">*</span>
+                  اسم المنتج بالعربي <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -2623,7 +2638,7 @@ export default function AdminPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-stone-700 mb-1">
                     السعر الأساسي (ج.م) <span className="text-red-500">*</span>
@@ -2650,11 +2665,32 @@ export default function AdminPage() {
                     className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600"
                   />
                 </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    العدد بالمخزون <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    placeholder="العدد المتوفر"
+                    value={prodForm.stockQuantity}
+                    onChange={(e) => {
+                      const qty = Number(e.target.value);
+                      setProdForm({
+                        ...prodForm,
+                        stockQuantity: qty,
+                        inStock: qty > 0
+                      });
+                    }}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600 font-bold"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">
-                  صورة العطر (رفع مباشر عبر Cloudinary مع ضغط الحجم)
+                  صورة المنتج (رفع مباشر عبر Cloudinary مع ضغط الحجم)
                 </label>
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
@@ -2707,11 +2743,11 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">
-                  وصف العطر ونوتاته
+                  وصف ومواصفات المنتج
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="وصف تفصيلي لرائحة العطر وثباته ومكوناته..."
+                  placeholder="وصف تفصيلي للمنتج ومواصفاته ومميزاته..."
                   value={prodForm.descriptionAr}
                   onChange={(e) => setProdForm({ ...prodForm, descriptionAr: e.target.value })}
                   className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600"
@@ -2727,7 +2763,7 @@ export default function AdminPage() {
                   className="w-4 h-4 text-amber-600 rounded"
                 />
                 <label htmlFor="prodInStock" className="text-xs font-bold text-stone-700 cursor-pointer">
-                  العطر متوفر في المخزن حالياً
+                  المنتج متوفر في المخزن حالياً
                 </label>
               </div>
 
@@ -2736,7 +2772,7 @@ export default function AdminPage() {
                   type="submit"
                   className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl shadow-md transition text-sm"
                 >
-                  حفظ العطر
+                  حفظ المنتج
                 </button>
                 <button
                   type="button"

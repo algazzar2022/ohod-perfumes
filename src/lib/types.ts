@@ -32,6 +32,7 @@ export interface Product {
   categoryId: number;
   available: boolean;
   inStock: boolean;
+  stockQuantity?: number;
   images: string[];
   updatedAt: string;
   createdAt?: string;

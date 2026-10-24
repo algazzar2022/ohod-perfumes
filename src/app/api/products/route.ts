@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
       categoryId: Number(body.categoryId || (db.categories[0]?.id || 1)),
       available: body.available !== undefined ? Boolean(body.available) : true,
       inStock: body.inStock !== undefined ? Boolean(body.inStock) : true,
+      stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : 50,
       images,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

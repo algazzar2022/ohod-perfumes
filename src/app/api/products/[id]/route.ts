@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDbAsync, saveDb } from '@/lib/db';
+import { getDbAsync, saveDbAsync } from '@/lib/db';
 
 export async function GET(
   req: NextRequest,
@@ -45,11 +45,12 @@ export async function PUT(
       categoryId: body.categoryId !== undefined ? Number(body.categoryId) : existing.categoryId,
       available: body.available !== undefined ? Boolean(body.available) : existing.available,
       inStock: body.inStock !== undefined ? Boolean(body.inStock) : existing.inStock,
+      stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : (existing.stockQuantity ?? 50),
       updatedAt: new Date().toISOString()
     };
 
     db.products[index] = updated;
-    saveDb(db);
+    await saveDbAsync(db);
 
     return NextResponse.json({ success: true, product: updated });
   } catch (err: unknown) {
@@ -73,7 +74,7 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'المنتج غير موجود' }, { status: 404 });
     }
 
-    saveDb(db);
+    await saveDbAsync(db);
     return NextResponse.json({ success: true, message: 'تم حذف المنتج بنجاح' });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
