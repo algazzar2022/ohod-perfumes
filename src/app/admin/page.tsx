@@ -837,7 +837,7 @@ export default function AdminPage() {
                 type="text"
                 required
                 dir="ltr"
-                placeholder="algazzar"
+                placeholder="Username"
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
                 className="w-full bg-stone-950 border border-stone-700 text-white rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-500 transition"
