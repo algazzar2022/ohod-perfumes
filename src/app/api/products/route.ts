@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbAsync, saveDbAsync, Product } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,6 +31,11 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAdmin(req, 'products');
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
     const body = await req.json();
     const db = await getDbAsync();
 

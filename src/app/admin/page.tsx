@@ -191,6 +191,13 @@ export default function AdminPage() {
         fetch('/api/admins')
       ]);
 
+      if (ordersRes.status === 401 || adminsRes.status === 401) {
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        localStorage.removeItem('ohod_admin_auth');
+        return;
+      }
+
       const [catalogData, ordersData, settingsData, adminsData] = await Promise.all([
         catalogRes.json(),
         ordersRes.json(),
@@ -276,21 +283,28 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('ohod_admin_auth');
-    if (savedUser) {
+    async function checkAuthSession() {
       try {
-        const parsed = JSON.parse(savedUser);
-        setCurrentUser(parsed);
-        setIsAuthenticated(true);
-        setActiveTab(getFirstAllowedTab(parsed));
-        fetchData();
-        return;
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.user) {
+            setCurrentUser(data.user);
+            localStorage.setItem('ohod_admin_auth', JSON.stringify(data.user));
+            setIsAuthenticated(true);
+            setActiveTab(getFirstAllowedTab(data.user));
+            fetchData();
+            return;
+          }
+        }
       } catch {
-        localStorage.removeItem('ohod_admin_auth');
+        // network issue fallback
       }
+      localStorage.removeItem('ohod_admin_auth');
+      setIsAuthenticated(false);
+      setLoading(false);
     }
-    setIsAuthenticated(false);
-    setLoading(false);
+    checkAuthSession();
   }, []);
 
   // Handlers for Auth

@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbAsync } from '@/lib/db';
-import { verifyPassword } from '@/lib/auth';
+import { verifyPassword, signSessionToken } from '@/lib/auth';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req.headers);
+    const rateLimit = checkRateLimit(`login:${ip}`, 5, 5 * 60 * 1000); // 5 attempts per 5 minutes
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'تم تجاوز عدد محاولات الدخول المسموح بها. يرجى الانتظار ٥ دقائق والمحاولة مجدداً لأسباب أمنية.'
+        },
+        { status: 429 }
+      );
+    }
+
     const { username, password } = await req.json();
 
     if (!username || !password) {
@@ -38,10 +52,17 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Set secure auth cookie
-    const token = `admin_${admin.id}_${Date.now()}`;
+    // Generate cryptographically signed HMAC-SHA256 session token
+    const token = signSessionToken({
+      adminId: admin.id,
+      username: admin.username,
+    });
+
+    // Set secure, httpOnly session cookie
     response.cookies.set('admin_session', token, {
-      httpOnly: false,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7 // 7 days
     });

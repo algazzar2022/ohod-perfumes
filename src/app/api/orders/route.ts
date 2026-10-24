@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbAsync, saveDbAsync, Order } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireAdmin(req, 'orders');
+    if (!auth.success) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    }
+
     const db = await getDbAsync();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
@@ -22,6 +29,15 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req.headers);
+    const rateLimit = checkRateLimit(`order:${ip}`, 10, 10 * 60 * 1000); // Max 10 orders per 10 minutes per IP
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'تم إرسال عدد كبير من الطلبات في وقت قصير، يرجى الانتظار قليلاً.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const db = await getDbAsync();
 
