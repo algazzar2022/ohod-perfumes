@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
       available: body.available !== undefined ? Boolean(body.available) : true,
       inStock: body.inStock !== undefined ? Boolean(body.inStock) : true,
       stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : 50,
+      sizes: Array.isArray(body.sizes) ? body.sizes : undefined,
       images,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

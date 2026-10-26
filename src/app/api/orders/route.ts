@@ -102,17 +102,32 @@ export async function POST(req: NextRequest) {
     const shippingFee = gov ? gov.shippingFee : 90;
 
     let subtotal = 0;
-    const items = body.items.map((it: { productId: number; quantity?: number; nameAr?: string; price?: number; image?: string }) => {
+    const items = body.items.map((it: { productId: number; quantity?: number; nameAr?: string; price?: number; image?: string; selectedSize?: string }) => {
       const prod = db.products.find(p => p.id === Number(it.productId));
       const qty = Math.max(1, Number(it.quantity) || 1);
-      const effectivePrice = prod
-        ? (prod.priceAfterDiscount && prod.priceAfterDiscount > 0 ? prod.priceAfterDiscount : prod.price)
-        : (Number(it.price) || 0);
+
+      let effectivePrice = Number(it.price) || 0;
+      if (prod) {
+        if (prod.sizes && Array.isArray(prod.sizes) && prod.sizes.length > 0 && it.selectedSize) {
+          const sizeOpt = prod.sizes.find(s => s.size === it.selectedSize);
+          if (sizeOpt) {
+            effectivePrice = sizeOpt.priceAfterDiscount && sizeOpt.priceAfterDiscount > 0
+              ? sizeOpt.priceAfterDiscount
+              : sizeOpt.price;
+          } else {
+            effectivePrice = prod.priceAfterDiscount && prod.priceAfterDiscount > 0 ? prod.priceAfterDiscount : prod.price;
+          }
+        } else {
+          effectivePrice = prod.priceAfterDiscount && prod.priceAfterDiscount > 0 ? prod.priceAfterDiscount : prod.price;
+        }
+      }
 
       subtotal += effectivePrice * qty;
+      const sizeLabel = it.selectedSize && !it.nameAr?.includes(it.selectedSize) ? ` (${it.selectedSize})` : '';
       return {
         productId: Number(it.productId),
-        nameAr: prod ? prod.nameAr : (it.nameAr || 'منتج'),
+        nameAr: prod ? `${prod.nameAr}${sizeLabel}` : (it.nameAr || 'منتج'),
+        selectedSize: it.selectedSize,
         price: effectivePrice,
         quantity: qty,
         image: prod && prod.images && prod.images[0] ? prod.images[0] : (it.image || '/images/logo/don-logo-160.png')

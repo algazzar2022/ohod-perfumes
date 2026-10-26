@@ -67,7 +67,7 @@ export default function CartDrawer() {
               </div>
             ) : (
               items.map((item) => (
-                <div key={item.productId} className="py-4 flex gap-4 items-center">
+                <div key={item.id || `${item.productId}-${item.selectedSize || 'default'}`} className="py-4 flex gap-4 items-center">
                   {/* Thumbnail */}
                   <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-stone-100 border border-stone-200 flex-shrink-0">
                     <Image
@@ -81,9 +81,14 @@ export default function CartDrawer() {
 
                   {/* Details */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-stone-900 text-sm truncate mb-1">
+                    <h4 className="font-bold text-stone-900 text-sm truncate mb-0.5">
                       {item.nameAr}
                     </h4>
+                    {item.selectedSize && (
+                      <span className="inline-block bg-amber-100 text-amber-800 text-[11px] font-bold px-2 py-0.5 rounded-md mb-1">
+                        الحجم: {item.selectedSize}
+                      </span>
+                    )}
                     <div className="text-amber-700 font-extrabold text-sm mb-2">
                       {item.price} ج.م
                     </div>
@@ -92,7 +97,7 @@ export default function CartDrawer() {
                     <div className="flex items-center gap-3">
                       <div className="flex items-center border border-stone-200 rounded-lg overflow-hidden bg-stone-50">
                         <button
-                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           className="px-2.5 py-1 text-stone-600 hover:bg-stone-200 transition"
                           aria-label="تقليل الكمية"
                         >
@@ -102,7 +107,7 @@ export default function CartDrawer() {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="px-2.5 py-1 text-stone-600 hover:bg-stone-200 transition"
                           aria-label="زيادة الكمية"
                         >
@@ -111,7 +116,7 @@ export default function CartDrawer() {
                       </div>
 
                       <button
-                        onClick={() => removeFromCart(item.productId)}
+                        onClick={() => removeFromCart(item.id)}
                         className="text-stone-400 hover:text-red-500 p-1.5 transition"
                         title="حذف من السلة"
                       >

@@ -16,19 +16,37 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
   const { addToCart, items } = useCart();
   const [added, setAdded] = React.useState(false);
 
-  const cartItem = items.find(i => i.productId === product.id);
+  const availableSizes = (product.sizes && product.sizes.length > 0)
+    ? product.sizes.filter(s => s.price > 0)
+    : [];
+
+  const [selectedSize, setSelectedSize] = React.useState<string>(
+    availableSizes.length > 0 ? availableSizes[0].size : '50 مل'
+  );
+
+  const currentSizeOpt = availableSizes.find(s => s.size === selectedSize) || (availableSizes.length > 0 ? availableSizes[0] : null);
+
+  const cartItem = items.find(
+    i => i.productId === product.id && (!availableSizes.length || i.selectedSize === (currentSizeOpt?.size || selectedSize))
+  );
   const inCartCount = cartItem?.quantity || 0;
 
   const hasDiscount = Boolean(
-    product.priceAfterDiscount &&
-    product.priceAfterDiscount > 0 &&
-    product.priceAfterDiscount < product.price
+    currentSizeOpt
+      ? (currentSizeOpt.priceAfterDiscount && currentSizeOpt.priceAfterDiscount > 0 && currentSizeOpt.priceAfterDiscount < currentSizeOpt.price)
+      : (product.priceAfterDiscount && product.priceAfterDiscount > 0 && product.priceAfterDiscount < product.price)
   );
+
+  const displayPrice = currentSizeOpt
+    ? (currentSizeOpt.priceAfterDiscount && currentSizeOpt.priceAfterDiscount > 0 ? currentSizeOpt.priceAfterDiscount : currentSizeOpt.price)
+    : (hasDiscount ? product.priceAfterDiscount : product.price);
+
+  const originalPrice = currentSizeOpt ? currentSizeOpt.price : product.price;
+
   const discountPercent = hasDiscount
-    ? Math.round(((product.price - product.priceAfterDiscount) / product.price) * 100)
+    ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100)
     : 0;
 
-  const displayPrice = hasDiscount ? product.priceAfterDiscount : product.price;
   const imageSrc = product.images && product.images[0] ? product.images[0] : '/images/logo/don-logo-160.png';
 
   const isOutOfStock = !product.inStock || (product.stockQuantity !== undefined && product.stockQuantity <= 0);
@@ -37,7 +55,10 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
     e.preventDefault();
     e.stopPropagation();
     if (isOutOfStock) return;
-    addToCart(product, 1);
+    const sizeToPass = availableSizes.length > 0 ? (currentSizeOpt?.size || selectedSize) : undefined;
+    const customPriceToPass = availableSizes.length > 0 ? displayPrice : undefined;
+    const customDiscountToPass = availableSizes.length > 0 ? (currentSizeOpt?.priceAfterDiscount || 0) : undefined;
+    addToCart(product, 1, sizeToPass, customPriceToPass, customDiscountToPass);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
@@ -97,9 +118,37 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
               {product.descriptionAr}
             </p>
           )}
+
+          {/* Size Pills */}
+          {availableSizes.length > 0 && (
+            <div className="pt-2.5 flex items-center gap-1.5 flex-wrap">
+              <span className="text-[11px] font-bold text-stone-500">الحجم:</span>
+              {availableSizes.map((s) => {
+                const isSelected = (currentSizeOpt?.size || selectedSize) === s.size;
+                return (
+                  <button
+                    key={s.size}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedSize(s.size);
+                    }}
+                    className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition cursor-pointer ${
+                      isSelected
+                        ? 'bg-amber-700 text-white border-amber-800 shadow-2xs'
+                        : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
+                    }`}
+                  >
+                    {s.size}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        <div className="pt-4 mt-2 border-t border-stone-100 flex items-center justify-between gap-2">
+        <div className="pt-3 mt-2 border-t border-stone-100 flex items-center justify-between gap-2">
           {/* Prices */}
           <div>
             <div className="flex items-baseline gap-1.5">

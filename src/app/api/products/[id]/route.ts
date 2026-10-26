@@ -52,6 +52,7 @@ export async function PUT(
       available: body.available !== undefined ? Boolean(body.available) : existing.available,
       inStock: body.inStock !== undefined ? Boolean(body.inStock) : existing.inStock,
       stockQuantity: body.stockQuantity !== undefined ? Number(body.stockQuantity) : (existing.stockQuantity ?? 50),
+      sizes: body.sizes !== undefined ? (Array.isArray(body.sizes) ? body.sizes : undefined) : existing.sizes,
       updatedAt: new Date().toISOString()
     };
 

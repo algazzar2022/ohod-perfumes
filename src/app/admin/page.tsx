@@ -43,7 +43,25 @@ import {
   Film,
   ArrowRight
 } from 'lucide-react';
-import { Product, Category, Governorate, Order, StoreSettings, AdminUser, AdminTab, ALL_ADMIN_PERMISSIONS } from '@/lib/types';
+import {
+  Product,
+  Category,
+  Governorate,
+  Order,
+  StoreSettings,
+  AdminUser,
+  AdminTab,
+  ALL_ADMIN_PERMISSIONS,
+  ProductSizeOption,
+  isPerfumeCategory
+} from '@/lib/types';
+
+const DEFAULT_PERFUME_SIZES: ProductSizeOption[] = [
+  { size: '100 مل', price: 0, priceAfterDiscount: 0 },
+  { size: '50 مل', price: 0, priceAfterDiscount: 0 },
+  { size: '30 مل', price: 0, priceAfterDiscount: 0 },
+  { size: '20 مل', price: 0, priceAfterDiscount: 0 }
+];
 
 const SECTION_CONFIG: { id: AdminTab; label: string; desc: string; icon: any }[] = [
   { id: 'dashboard', label: 'الإحصائيات العامة', desc: 'نظرة عامة على المبيعات والمؤشرات', icon: LayoutDashboard },
@@ -126,6 +144,7 @@ export default function AdminPage() {
     descriptionAr: '',
     inStock: true,
     stockQuantity: 50,
+    sizes: DEFAULT_PERFUME_SIZES.map(s => ({ ...s })),
     image: '/images/logo/don-logo-160.png'
   });
   const [imageUploading, setImageUploading] = useState(false);
@@ -486,6 +505,7 @@ export default function AdminPage() {
       descriptionAr: '',
       inStock: true,
       stockQuantity: 50,
+      sizes: DEFAULT_PERFUME_SIZES.map(s => ({ ...s })),
       image: '/images/logo/don-logo-160.png'
     });
     setProductModalOpen(true);
@@ -493,6 +513,16 @@ export default function AdminPage() {
 
   const handleOpenEditProduct = (prod: Product) => {
     setEditingProduct(prod);
+    const existingSizes = prod.sizes || [];
+    const sizes = ['100 مل', '50 مل', '30 مل', '20 مل'].map(sz => {
+      const found = existingSizes.find(s => s.size === sz);
+      return {
+        size: sz,
+        price: found ? found.price : 0,
+        priceAfterDiscount: found?.priceAfterDiscount || 0
+      };
+    });
+
     setProdForm({
       nameAr: prod.nameAr,
       nameEn: prod.nameEn || '',
@@ -502,6 +532,7 @@ export default function AdminPage() {
       descriptionAr: prod.descriptionAr || '',
       inStock: prod.inStock,
       stockQuantity: prod.stockQuantity !== undefined ? prod.stockQuantity : (prod.inStock ? 50 : 0),
+      sizes,
       image: prod.images?.[0] || '/images/logo/don-logo-160.png'
     });
     setProductModalOpen(true);
@@ -559,15 +590,39 @@ export default function AdminPage() {
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const selectedCat = categories.find(c => c.id === prodForm.categoryId);
+      const isPerfume = isPerfumeCategory(selectedCat?.nameAr, prodForm.categoryId);
+
+      let finalSizes: ProductSizeOption[] | undefined = undefined;
+      let finalPrice = Number(prodForm.price) || 0;
+      let finalPriceAfterDiscount = Number(prodForm.priceAfterDiscount) || 0;
+
+      if (isPerfume) {
+        const validSizes = (prodForm.sizes || []).filter(s => Number(s.price) > 0);
+        if (validSizes.length > 0) {
+          finalSizes = validSizes;
+          // Set base product price from the first size with price
+          finalPrice = validSizes[0].price;
+          finalPriceAfterDiscount = validSizes[0].priceAfterDiscount || 0;
+        } else {
+          finalPrice = Number(prodForm.price) || 100;
+        }
+      }
+
+      const payload = {
+        ...prodForm,
+        price: finalPrice,
+        priceAfterDiscount: finalPriceAfterDiscount,
+        sizes: finalSizes,
+        images: [prodForm.image]
+      };
+
       if (editingProduct) {
         // Update
         const res = await fetch(`/api/products/${editingProduct.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...prodForm,
-            images: [prodForm.image]
-          })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.success) {
@@ -582,10 +637,7 @@ export default function AdminPage() {
         const res = await fetch('/api/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...prodForm,
-            images: [prodForm.image]
-          })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.success) {
@@ -1276,7 +1328,18 @@ export default function AdminPage() {
                       </label>
                       <select
                         value={prodForm.categoryId}
-                        onChange={(e) => setProdForm({ ...prodForm, categoryId: Number(e.target.value) })}
+                        onChange={(e) => {
+                          const newCatId = Number(e.target.value);
+                          const currentCat = categories.find(c => c.id === newCatId);
+                          const isPerfume = isPerfumeCategory(currentCat?.nameAr, newCatId);
+                          setProdForm({
+                            ...prodForm,
+                            categoryId: newCatId,
+                            sizes: isPerfume && (!prodForm.sizes || prodForm.sizes.length === 0)
+                              ? DEFAULT_PERFUME_SIZES.map(s => ({ ...s }))
+                              : prodForm.sizes
+                          });
+                        }}
                         className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none font-medium focus:border-amber-600 focus:bg-white transition"
                       >
                         {categories.map(c => (
@@ -1285,55 +1348,151 @@ export default function AdminPage() {
                       </select>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1">
-                          السعر الأساسي (ج.م) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          required
-                          value={prodForm.price}
-                          onChange={(e) => setProdForm({ ...prodForm, price: Number(e.target.value) })}
-                          className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1">
-                          السعر بعد الخصم (ج.م)
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          placeholder="0 إذا لا يوجد خصم"
-                          value={prodForm.priceAfterDiscount}
-                          onChange={(e) => setProdForm({ ...prodForm, priceAfterDiscount: Number(e.target.value) })}
-                          className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1">
-                          العدد بالمخزون <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          required
-                          placeholder="العدد المتوفر"
-                          value={prodForm.stockQuantity}
-                          onChange={(e) => {
-                            const qty = Number(e.target.value);
-                            setProdForm({
-                              ...prodForm,
-                              stockQuantity: qty,
-                              inStock: qty > 0
-                            });
-                          }}
-                          className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition font-bold"
-                        />
-                      </div>
-                    </div>
+                    {(() => {
+                      const currentCategory = categories.find(c => c.id === prodForm.categoryId);
+                      const isPerfume = isPerfumeCategory(currentCategory?.nameAr, prodForm.categoryId);
+
+                      if (isPerfume) {
+                        return (
+                          <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h4 className="text-sm font-bold text-stone-900 flex items-center gap-1.5">
+                                  <Sparkles className="w-4 h-4 text-amber-600" />
+                                  <span>أحجام العطر والأسعار (خاص بأقسام العطور فقط)</span>
+                                </h4>
+                                <p className="text-xs text-stone-500 mt-0.5">
+                                  حدد السعر الأساسي والسعر بعد الخصم لكل حجم (100 مل، 50 مل، 30 مل، 20 مل). اترك السعر 0 للحجم غير المتوفر.
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+                              {prodForm.sizes.map((sz, idx) => (
+                                <div key={sz.size} className="bg-white p-3.5 rounded-xl border border-amber-200/80 shadow-2xs space-y-2">
+                                  <div className="flex items-center justify-between pb-1.5 border-b border-stone-100">
+                                    <span className="font-extrabold text-stone-900 text-sm">{sz.size}</span>
+                                    <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">
+                                      حجم عبوة
+                                    </span>
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                                      السعر الأساسي (ج.م) *
+                                    </label>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      placeholder="مثال: 350"
+                                      value={sz.price || ''}
+                                      onChange={(e) => {
+                                        const updated = [...prodForm.sizes];
+                                        updated[idx] = { ...updated[idx], price: Number(e.target.value) };
+                                        setProdForm({ ...prodForm, sizes: updated });
+                                      }}
+                                      className="w-full bg-stone-50 border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-600 font-bold text-stone-900"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                                      السعر بعد الخصم (ج.م)
+                                    </label>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      placeholder="0 إذا لا يوجد خصم"
+                                      value={sz.priceAfterDiscount || ''}
+                                      onChange={(e) => {
+                                        const updated = [...prodForm.sizes];
+                                        updated[idx] = { ...updated[idx], priceAfterDiscount: Number(e.target.value) };
+                                        setProdForm({ ...prodForm, sizes: updated });
+                                      }}
+                                      className="w-full bg-stone-50 border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-600 text-stone-900"
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="pt-2">
+                              <label className="block text-xs font-bold text-stone-700 mb-1">
+                                العدد الإجمالي بالمخزون <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                required
+                                placeholder="العدد المتوفر في المخزن"
+                                value={prodForm.stockQuantity}
+                                onChange={(e) => {
+                                  const qty = Number(e.target.value);
+                                  setProdForm({
+                                    ...prodForm,
+                                    stockQuantity: qty,
+                                    inStock: qty > 0
+                                  });
+                                }}
+                                className="w-full sm:w-1/3 bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-sm outline-none focus:border-amber-600 font-bold"
+                              />
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div>
+                            <label className="block text-xs font-bold text-stone-700 mb-1">
+                              السعر الأساسي (ج.م) <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              required
+                              value={prodForm.price}
+                              onChange={(e) => setProdForm({ ...prodForm, price: Number(e.target.value) })}
+                              className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-stone-700 mb-1">
+                              السعر بعد الخصم (ج.م)
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder="0 إذا لا يوجد خصم"
+                              value={prodForm.priceAfterDiscount}
+                              onChange={(e) => setProdForm({ ...prodForm, priceAfterDiscount: Number(e.target.value) })}
+                              className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-stone-700 mb-1">
+                              العدد بالمخزون <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              required
+                              placeholder="العدد المتوفر"
+                              value={prodForm.stockQuantity}
+                              onChange={(e) => {
+                                const qty = Number(e.target.value);
+                                setProdForm({
+                                  ...prodForm,
+                                  stockQuantity: qty,
+                                  inStock: qty > 0
+                                });
+                              }}
+                              className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-amber-600 focus:bg-white transition font-bold"
+                            />
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     <div>
                       <label className="block text-xs font-bold text-stone-700 mb-1">
@@ -1523,6 +1682,15 @@ export default function AdminPage() {
                               <td className="py-2.5 px-4 font-bold text-stone-900 max-w-xs">
                                 <div>{prod.nameAr}</div>
                                 <div className="text-[11px] text-stone-400 font-normal">#{prod.id}</div>
+                                {prod.sizes && prod.sizes.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {prod.sizes.map(s => (
+                                      <span key={s.size} className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded font-medium">
+                                        {s.size}: {s.priceAfterDiscount && s.priceAfterDiscount > 0 ? s.priceAfterDiscount : s.price} ج
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
                               </td>
                               <td className="py-2.5 px-4 text-stone-600">
                                 <span className="bg-stone-100 text-stone-700 text-xs px-2.5 py-0.5 rounded-full font-medium">
@@ -2955,7 +3123,14 @@ export default function AdminPage() {
                         />
                       </div>
                       <div>
-                        <h5 className="font-bold text-xs sm:text-sm text-stone-900">{it.nameAr}</h5>
+                        <h5 className="font-bold text-xs sm:text-sm text-stone-900 flex items-center gap-1.5 flex-wrap">
+                          <span>{it.nameAr}</span>
+                          {it.selectedSize && (
+                            <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-full border border-amber-300">
+                              {it.selectedSize}
+                            </span>
+                          )}
+                        </h5>
                         <span className="text-xs text-stone-400">الكمية: {it.quantity} × {it.price} ج.م</span>
                       </div>
                     </div>

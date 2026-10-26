@@ -176,6 +176,7 @@ export default function CheckoutPage() {
           items: items.map(it => ({
             productId: it.productId,
             nameAr: it.nameAr,
+            selectedSize: it.selectedSize,
             price: it.price,
             quantity: it.quantity,
             image: it.image
@@ -544,7 +545,7 @@ export default function CheckoutPage() {
               {/* Items List */}
               <div className="divide-y divide-stone-100 max-h-80 overflow-y-auto pr-1">
                 {items.map((it) => (
-                  <div key={it.productId} className="py-3 flex items-center gap-3">
+                  <div key={it.id || `${it.productId}-${it.selectedSize || 'default'}`} className="py-3 flex items-center gap-3">
                     <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-stone-100 border border-stone-200 flex-shrink-0">
                       <Image
                         src={it.image}
@@ -558,7 +559,12 @@ export default function CheckoutPage() {
                       <h4 className="font-bold text-stone-800 text-xs sm:text-sm truncate">
                         {it.nameAr}
                       </h4>
-                      <span className="text-xs text-stone-400">
+                      {it.selectedSize && (
+                        <span className="inline-block bg-amber-100 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded mt-0.5">
+                          الحجم: {it.selectedSize}
+                        </span>
+                      )}
+                      <span className="text-xs text-stone-400 block mt-0.5">
                         الكمية: {it.quantity} × {it.price} ج.م
                       </span>
                     </div>

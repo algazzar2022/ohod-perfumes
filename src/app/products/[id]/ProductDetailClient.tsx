@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { Product, Category } from '@/lib/types';
+import { Product, Category, ProductSizeOption } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
 import {
   ShoppingBag,
@@ -37,6 +37,7 @@ export default function ProductDetailClient() {
   const [error, setError] = useState<string | null>(null);
 
   const [selectedImage, setSelectedImage] = useState<string>('');
+  const [selectedSize, setSelectedSize] = useState<string>('50 مل');
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
 
@@ -52,6 +53,12 @@ export default function ProductDetailClient() {
           if (found) {
             setProduct(found);
             setSelectedImage(found.images?.[0] || '/images/logo/don-logo-160.png');
+            if (found.sizes && found.sizes.length > 0) {
+              const validSizes = found.sizes.filter(s => s.price > 0);
+              if (validSizes.length > 0) {
+                setSelectedSize(validSizes[0].size);
+              }
+            }
             setCategories(data.categories || []);
 
             // Related products from same category
@@ -112,21 +119,39 @@ export default function ProductDetailClient() {
   }
 
   const category = categories.find(c => c.id === product.categoryId);
+
+  const availableSizes: ProductSizeOption[] = (product.sizes && product.sizes.length > 0)
+    ? product.sizes.filter(s => s.price > 0)
+    : [];
+
+  const currentSizeOpt = availableSizes.find(s => s.size === selectedSize) || (availableSizes.length > 0 ? availableSizes[0] : null);
+
   const hasDiscount = Boolean(
-    product.priceAfterDiscount &&
-    product.priceAfterDiscount > 0 &&
-    product.priceAfterDiscount < product.price
+    currentSizeOpt
+      ? (currentSizeOpt.priceAfterDiscount && currentSizeOpt.priceAfterDiscount > 0 && currentSizeOpt.priceAfterDiscount < currentSizeOpt.price)
+      : (product.priceAfterDiscount && product.priceAfterDiscount > 0 && product.priceAfterDiscount < product.price)
   );
-  const effectivePrice = hasDiscount ? product.priceAfterDiscount : product.price;
+
+  const effectivePrice = currentSizeOpt
+    ? (currentSizeOpt.priceAfterDiscount && currentSizeOpt.priceAfterDiscount > 0 ? currentSizeOpt.priceAfterDiscount : currentSizeOpt.price)
+    : (product.priceAfterDiscount && product.priceAfterDiscount > 0 ? product.priceAfterDiscount : product.price);
+
+  const originalPrice = currentSizeOpt ? currentSizeOpt.price : product.price;
+
   const discountPercent = hasDiscount
-    ? Math.round(((product.price - product.priceAfterDiscount) / product.price) * 100)
+    ? Math.round(((originalPrice - effectivePrice) / originalPrice) * 100)
     : 0;
 
-  const cartItem = items.find(i => i.productId === product.id);
+  const cartItem = items.find(
+    i => i.productId === product.id && (!availableSizes.length || i.selectedSize === (currentSizeOpt?.size || selectedSize))
+  );
 
   const handleAddToCart = () => {
     if (!product.inStock) return;
-    addToCart(product, quantity);
+    const sizeToPass = availableSizes.length > 0 ? (currentSizeOpt?.size || selectedSize) : undefined;
+    const customPriceToPass = availableSizes.length > 0 ? effectivePrice : undefined;
+    const customDiscountToPass = availableSizes.length > 0 ? (currentSizeOpt?.priceAfterDiscount || 0) : undefined;
+    addToCart(product, quantity, sizeToPass, customPriceToPass, customDiscountToPass);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
@@ -233,6 +258,49 @@ export default function ProductDetailClient() {
                   )}
                 </div>
 
+                {/* Size Selector for Perfumes */}
+                {availableSizes.length > 0 && (
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <span className="text-xs sm:text-sm font-bold text-stone-800">
+                        اختر حجم العبوة المطلوب:
+                      </span>
+                      <span className="text-xs text-amber-700 font-extrabold bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                        الحجم المحدد: {currentSizeOpt?.size || selectedSize}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {availableSizes.map((s) => {
+                        const isSelected = (currentSizeOpt?.size || selectedSize) === s.size;
+                        const sPrice = s.priceAfterDiscount && s.priceAfterDiscount > 0 ? s.priceAfterDiscount : s.price;
+                        const sHasDiscount = Boolean(s.priceAfterDiscount && s.priceAfterDiscount > 0 && s.priceAfterDiscount < s.price);
+                        return (
+                          <button
+                            key={s.size}
+                            type="button"
+                            onClick={() => setSelectedSize(s.size)}
+                            className={`p-3 rounded-2xl border text-center transition cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                              isSelected
+                                ? 'bg-amber-700 text-white border-amber-800 shadow-md ring-2 ring-amber-600/30'
+                                : 'bg-stone-50 hover:bg-stone-100 text-stone-800 border-stone-200'
+                            }`}
+                          >
+                            <span className="font-black text-sm sm:text-base">{s.size}</span>
+                            <span className={`text-xs font-bold ${isSelected ? 'text-amber-100' : 'text-amber-800'}`}>
+                              {sPrice} ج.م
+                            </span>
+                            {sHasDiscount && (
+                              <span className={`text-[10px] line-through ${isSelected ? 'text-amber-200/70' : 'text-stone-400'}`}>
+                                {s.price} ج.م
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* Price block */}
                 <div className="bg-stone-50 p-5 rounded-2xl border border-stone-100 mb-6 flex items-baseline gap-4">
                   <div className="flex items-baseline gap-1.5">
@@ -243,7 +311,7 @@ export default function ProductDetailClient() {
                   </div>
                   {hasDiscount && (
                     <span className="text-base text-stone-400 line-through font-semibold">
-                      {product.price} ج.م
+                      {originalPrice} ج.م
                     </span>
                   )}
                 </div>
@@ -325,12 +393,15 @@ export default function ProductDetailClient() {
                   <button
                     onClick={() => {
                       if (product.inStock) {
-                        addToCart(product, quantity);
+                        const sizeToPass = availableSizes.length > 0 ? (currentSizeOpt?.size || selectedSize) : undefined;
+                        const customPriceToPass = availableSizes.length > 0 ? effectivePrice : undefined;
+                        const customDiscountToPass = availableSizes.length > 0 ? (currentSizeOpt?.priceAfterDiscount || 0) : undefined;
+                        addToCart(product, quantity, sizeToPass, customPriceToPass, customDiscountToPass);
                         openCart();
                       }
                     }}
                     disabled={!product.inStock}
-                    className="sm:w-auto px-6 py-4 rounded-xl border border-amber-600 text-amber-800 hover:bg-amber-50 font-bold text-sm transition"
+                    className="sm:w-auto px-6 py-4 rounded-xl border border-amber-600 text-amber-800 hover:bg-amber-50 font-bold text-sm transition cursor-pointer"
                   >
                     شراء مباشر الآن
                   </button>

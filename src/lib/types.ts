@@ -21,6 +21,27 @@ export interface AdminUser {
   createdAt: string;
 }
 
+export interface ProductSizeOption {
+  size: string; // '100 مل' | '50 مل' | '30 مل' | '20 مل'
+  price: number;
+  priceAfterDiscount?: number;
+  inStock?: boolean;
+}
+
+export const PERFUME_SIZE_OPTIONS = ['100 مل', '50 مل', '30 مل', '20 مل'] as const;
+
+export function isPerfumeCategory(catNameAr?: string, catId?: number): boolean {
+  if (!catNameAr && !catId) return false;
+  if (catId && [1, 2, 3].includes(catId)) return true;
+  if (!catNameAr) return false;
+  const normalized = catNameAr.trim().toLowerCase();
+  return (
+    normalized.includes('رجالي') ||
+    normalized.includes('نسائي') ||
+    normalized.includes('للجنسين')
+  );
+}
+
 export interface Product {
   id: number;
   nameAr: string;
@@ -33,6 +54,7 @@ export interface Product {
   available: boolean;
   inStock: boolean;
   stockQuantity?: number;
+  sizes?: ProductSizeOption[];
   images: string[];
   updatedAt: string;
   createdAt?: string;
@@ -56,6 +78,7 @@ export interface Governorate {
 export interface OrderItem {
   productId: number;
   nameAr: string;
+  selectedSize?: string;
   price: number;
   quantity: number;
   image?: string;

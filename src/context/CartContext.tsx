@@ -4,9 +4,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '@/lib/db';
 
 export interface CartItem {
-  id: number;
+  id: string | number;
   productId: number;
   nameAr: string;
+  selectedSize?: string;
   price: number;
   priceAfterDiscount?: number;
   quantity: number;
@@ -16,9 +17,15 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  addToCart: (
+    product: Product,
+    quantity?: number,
+    selectedSize?: string,
+    customPrice?: number,
+    customPriceAfterDiscount?: number
+  ) => void;
+  removeFromCart: (cartItemIdOrProductId: string | number, size?: string) => void;
+  updateQuantity: (cartItemIdOrProductId: string | number, quantity: number, size?: string) => void;
   clearCart: () => void;
   isCartOpen: boolean;
   openCart: () => void;
@@ -60,7 +67,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, isLoaded]);
 
-  const addToCart = (product: Product, quantity = 1) => {
+  const addToCart = (
+    product: Product,
+    quantity = 1,
+    selectedSize?: string,
+    customPrice?: number,
+    customPriceAfterDiscount?: number
+  ) => {
     const availableStock = product.stockQuantity !== undefined ? product.stockQuantity : (product.inStock ? 50 : 0);
 
     if (!product.inStock || availableStock <= 0) {
@@ -69,39 +82,61 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const effectivePrice = product.priceAfterDiscount && product.priceAfterDiscount > 0
+    // Determine effective price (custom price for size if passed, otherwise base product price)
+    let effectivePrice = product.priceAfterDiscount && product.priceAfterDiscount > 0
       ? product.priceAfterDiscount
       : product.price;
 
+    let finalDiscountPrice: number | undefined = product.priceAfterDiscount;
+
+    if (customPrice !== undefined) {
+      effectivePrice = customPrice;
+      finalDiscountPrice = customPriceAfterDiscount;
+    } else if (selectedSize && product.sizes && product.sizes.length > 0) {
+      const foundSize = product.sizes.find(s => s.size === selectedSize);
+      if (foundSize) {
+        effectivePrice = foundSize.priceAfterDiscount && foundSize.priceAfterDiscount > 0
+          ? foundSize.priceAfterDiscount
+          : foundSize.price;
+        finalDiscountPrice = foundSize.priceAfterDiscount;
+      }
+    }
+
     const img = product.images && product.images.length > 0 ? product.images[0] : '/images/logo/don-logo-160.png';
+    const itemKey = selectedSize ? `${product.id}_${selectedSize}` : String(product.id);
 
     let exceeded = false;
     setItems(prev => {
-      const existing = prev.find(item => item.productId === product.id);
+      const existing = prev.find(item =>
+        String(item.id) === itemKey || (item.productId === product.id && item.selectedSize === selectedSize)
+      );
+
       if (existing) {
         const nextQty = existing.quantity + quantity;
         if (nextQty > availableStock) {
           exceeded = true;
           return prev.map(item =>
-            item.productId === product.id
+            (String(item.id) === itemKey || (item.productId === product.id && item.selectedSize === selectedSize))
               ? { ...item, quantity: availableStock, stockQuantity: availableStock }
               : item
           );
         }
         return prev.map(item =>
-          item.productId === product.id
+          (String(item.id) === itemKey || (item.productId === product.id && item.selectedSize === selectedSize))
             ? { ...item, quantity: nextQty, stockQuantity: availableStock }
             : item
         );
       }
+
       return [
         ...prev,
         {
-          id: product.id,
+          id: itemKey,
           productId: product.id,
           nameAr: product.nameAr,
+          selectedSize,
           price: effectivePrice,
-          priceAfterDiscount: product.priceAfterDiscount,
+          priceAfterDiscount: finalDiscountPrice,
           quantity: Math.min(quantity, availableStock),
           image: img,
           stockQuantity: availableStock
@@ -109,28 +144,40 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       ];
     });
 
+    const sizeSuffix = selectedSize ? ` (حجم ${selectedSize})` : '';
     if (exceeded) {
-      setToast(`أقصى كمية متوفرة في المخزن من "${product.nameAr}" هي ${availableStock} قطع`);
+      setToast(`أقصى كمية متوفرة في المخزن من "${product.nameAr}${sizeSuffix}" هي ${availableStock} قطع`);
     } else {
-      setToast(`تمت إضافة "${product.nameAr}" إلى السلة`);
+      setToast(`تمت إضافة "${product.nameAr}${sizeSuffix}" إلى السلة`);
     }
     setTimeout(() => {
       setToast(null);
     }, 3000);
   };
 
-  const removeFromCart = (productId: number) => {
-    setItems(prev => prev.filter(item => item.productId !== productId));
+  const removeFromCart = (cartItemIdOrProductId: string | number, size?: string) => {
+    setItems(prev =>
+      prev.filter(item => {
+        if (size) {
+          return !(item.productId === Number(cartItemIdOrProductId) && item.selectedSize === size);
+        }
+        return String(item.id) !== String(cartItemIdOrProductId) && item.productId !== cartItemIdOrProductId;
+      })
+    );
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (cartItemIdOrProductId: string | number, quantity: number, size?: string) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(cartItemIdOrProductId, size);
       return;
     }
     setItems(prev =>
       prev.map(item => {
-        if (item.productId === productId) {
+        const isMatch = size
+          ? item.productId === Number(cartItemIdOrProductId) && item.selectedSize === size
+          : String(item.id) === String(cartItemIdOrProductId) || item.productId === cartItemIdOrProductId;
+
+        if (isMatch) {
           const max = item.stockQuantity !== undefined ? item.stockQuantity : 999;
           const clamped = Math.min(quantity, max);
           if (quantity > max) {
@@ -153,8 +200,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const toggleCart = () => setIsCartOpen(prev => !prev);
   const hideToast = () => setToast(null);
 
-  const totalItems = items.reduce((acc, it) => acc + it.quantity, 0);
-  const subtotal = items.reduce((acc, it) => acc + (it.price * it.quantity), 0);
+  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
+  const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
     <CartContext.Provider
