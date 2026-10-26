@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
 import HeroBanner from '@/components/HeroBanner';
@@ -41,41 +42,63 @@ export default function HomeClient({
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
 
+  const searchParams = useSearchParams();
+
   // Read category from URL query parameters (e.g. ?category=6 or ?category=all)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const catParam = params.get('category');
-      if (catParam) {
-        if (catParam === 'all') {
+    const catParam = searchParams.get('category');
+    if (catParam) {
+      if (catParam === 'all') {
+        setSelectedCategory('all');
+      } else {
+        const catId = Number(catParam);
+        if (!isNaN(catId)) {
+          setSelectedCategory(catId);
+        }
+      }
+      setTimeout(() => {
+        const el = document.getElementById('products');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+    } else if (typeof window !== 'undefined' && window.location.hash === '#products') {
+      setTimeout(() => {
+        const el = document.getElementById('products');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+    }
+  }, [searchParams]);
+
+  // Listen for instant category switch event (from Footer, Navbar, etc. on the same page)
+  useEffect(() => {
+    const handleCategoryEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ categoryId: number | string }>;
+      const catId = customEvent.detail?.categoryId;
+      if (catId !== undefined) {
+        if (catId === 'all') {
           setSelectedCategory('all');
-          setTimeout(() => {
-            const el = document.getElementById('products');
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth' });
-            }
-          }, 150);
         } else {
-          const catId = Number(catParam);
-          if (!isNaN(catId)) {
-            setSelectedCategory(catId);
-            setTimeout(() => {
-              const el = document.getElementById('products');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-              }
-            }, 150);
+          const num = Number(catId);
+          if (!isNaN(num)) {
+            setSelectedCategory(num);
           }
         }
-      } else if (window.location.hash === '#products') {
         setTimeout(() => {
           const el = document.getElementById('products');
           if (el) {
-            el.scrollIntoView({ behavior: 'smooth' });
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
-        }, 150);
+        }, 50);
       }
-    }
+    };
+
+    window.addEventListener('ohod-select-category', handleCategoryEvent as EventListener);
+    return () => {
+      window.removeEventListener('ohod-select-category', handleCategoryEvent as EventListener);
+    };
   }, []);
 
   const handleSelectCategory = (catId: number | 'all') => {

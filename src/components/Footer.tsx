@@ -34,23 +34,56 @@ export default function Footer() {
     footerDeveloperUrl: 'https://www.facebook.com/algazzar2015'
   });
 
+  const [categories, setCategories] = useState<{ id: number; nameAr: string }[]>([
+    { id: 1, nameAr: 'عطور رجالية' },
+    { id: 2, nameAr: 'عطور نسائية' },
+    { id: 3, nameAr: 'عطور للجنسين' },
+    { id: 4, nameAr: 'عطور جاهزة' },
+    { id: 5, nameAr: 'بخور ومباخر' },
+    { id: 6, nameAr: 'شخصية ومنزلية' },
+    { id: 7, nameAr: 'عروض وخصومات خاصة 🔥' }
+  ]);
+
   useEffect(() => {
-    async function loadSettings() {
+    async function loadData() {
       try {
-        const res = await fetch('/api/settings');
-        const data = await res.json();
-        if (data.success && data.settings) {
+        const [settingsRes, catalogRes] = await Promise.all([
+          fetch('/api/settings'),
+          fetch('/api/catalog')
+        ]);
+        const [settingsData, catalogData] = await Promise.all([
+          settingsRes.json(),
+          catalogRes.json()
+        ]);
+
+        if (settingsData.success && settingsData.settings) {
           setSettings(prev => ({
             ...prev,
-            ...data.settings
+            ...settingsData.settings
           }));
         }
+        if (catalogData.success && Array.isArray(catalogData.categories) && catalogData.categories.length > 0) {
+          setCategories(catalogData.categories);
+        }
       } catch (err) {
-        console.error('Failed to load settings in footer:', err);
+        console.error('Failed to load data in footer:', err);
       }
     }
-    loadSettings();
+    loadData();
   }, []);
+
+  const handleCategoryClick = (e: React.MouseEvent<HTMLAnchorElement>, catId: number | string) => {
+    if (typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === '')) {
+      e.preventDefault();
+      const newUrl = `/?category=${catId}#products`;
+      window.history.pushState({}, '', newUrl);
+      window.dispatchEvent(new CustomEvent('ohod-select-category', { detail: { categoryId: catId } }));
+      const el = document.getElementById('products');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
 
   const guarantees = Array.isArray(settings.footerGuarantees) && settings.footerGuarantees.length > 0
     ? settings.footerGuarantees
@@ -139,41 +172,17 @@ export default function Footer() {
               أقسام المتجر
             </h4>
             <ul className="space-y-2 text-sm text-stone-400">
-              <li>
-                <Link href="/?category=1" className="hover:text-amber-400 transition">
-                  عطور رجالية
-                </Link>
-              </li>
-              <li>
-                <Link href="/?category=2" className="hover:text-amber-400 transition">
-                  عطور نسائية
-                </Link>
-              </li>
-              <li>
-                <Link href="/?category=3" className="hover:text-amber-400 transition">
-                  عطور للجنسين
-                </Link>
-              </li>
-              <li>
-                <Link href="/?category=4" className="hover:text-amber-400 transition">
-                  عطور جاهزة
-                </Link>
-              </li>
-              <li>
-                <Link href="/?category=5" className="hover:text-amber-400 transition">
-                  بخور ومباخر
-                </Link>
-              </li>
-              <li>
-                <Link href="/?category=6" className="hover:text-amber-400 transition">
-                  شخصية ومنزلية
-                </Link>
-              </li>
-              <li>
-                <Link href="/?category=7" className="hover:text-amber-400 transition text-amber-400 font-bold">
-                  عروض وخصومات خاصة 🔥
-                </Link>
-              </li>
+              {categories.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    href={`/?category=${c.id}#products`}
+                    onClick={(e) => handleCategoryClick(e, c.id)}
+                    className={`hover:text-amber-400 transition block py-0.5 ${c.id === 7 ? 'text-amber-400 font-bold' : ''}`}
+                  >
+                    {c.nameAr}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

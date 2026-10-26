@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react';
 import { Metadata } from 'next';
 import { getStoreMetadata } from '@/lib/seo';
 import { getDbAsync } from '@/lib/db';
@@ -13,10 +14,12 @@ export default async function HomePage() {
   const db = await getDbAsync();
 
   return (
-    <HomeClient
-      initialProducts={db.products || []}
-      initialCategories={db.categories || []}
-      initialSettings={db.settings}
-    />
+    <Suspense fallback={null}>
+      <HomeClient
+        initialProducts={db.products || []}
+        initialCategories={db.categories || []}
+        initialSettings={db.settings}
+      />
+    </Suspense>
   );
 }
