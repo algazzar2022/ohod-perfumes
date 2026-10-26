@@ -121,29 +121,30 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
 
           {/* Size Pills */}
           {availableSizes.length > 0 && (
-            <div className="pt-2.5 flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] font-bold text-stone-500">الحجم:</span>
-              {availableSizes.map((s) => {
-                const isSelected = (currentSizeOpt?.size || selectedSize) === s.size;
-                return (
-                  <button
-                    key={s.size}
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setSelectedSize(s.size);
-                    }}
-                    className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition cursor-pointer ${
-                      isSelected
-                        ? 'bg-amber-700 text-white border-amber-800 shadow-2xs'
-                        : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
-                    }`}
-                  >
-                    {s.size}
-                  </button>
-                );
-              })}
+            <div className="pt-2.5">
+              <div className="flex items-center gap-1 sm:gap-1.5 w-full flex-nowrap">
+                {availableSizes.map((s) => {
+                  const isSelected = (currentSizeOpt?.size || selectedSize) === s.size;
+                  return (
+                    <button
+                      key={s.size}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedSize(s.size);
+                      }}
+                      className={`flex-1 min-w-0 text-center text-[10px] sm:text-[11px] font-bold py-1 px-1 sm:px-1.5 rounded-lg border transition cursor-pointer whitespace-nowrap ${
+                        isSelected
+                          ? 'bg-amber-700 text-white border-amber-800 shadow-2xs'
+                          : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
+                      }`}
+                    >
+                      {s.size}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
