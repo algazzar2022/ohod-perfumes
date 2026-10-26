@@ -1,16 +1,8 @@
 import { Metadata } from 'next';
-import { getDb } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import ProductDetailClient from './ProductDetailClient';
 
-export async function generateStaticParams() {
-  const db = getDb();
-  if (!db.products || db.products.length === 0) {
-    return [{ id: '1' }];
-  }
-  return db.products.map((p) => ({
-    id: String(p.id),
-  }));
-}
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -19,10 +11,10 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const productId = Number(id);
-  const db = getDb();
+  const db = await getDbAsync();
   const product = db.products.find(p => p.id === productId);
   const settings = db.settings;
-  const baseUrl = settings.canonicalUrl || 'https://ohod-perfumes.com';
+  const baseUrl = settings.canonicalUrl || 'https://ohodperfumes.com';
   const cleanBase = baseUrl.replace(/\/+$/, '');
 
   if (!product) {
@@ -88,11 +80,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductDetailPage({ params }: Props) {
   const { id } = await params;
   const productId = Number(id);
-  const db = getDb();
+  const db = await getDbAsync();
   const product = db.products.find(p => p.id === productId);
   const category = product ? db.categories.find(c => c.id === product.categoryId) : null;
   const settings = db.settings;
-  const baseUrl = (settings.canonicalUrl || 'https://ohod-perfumes.com').replace(/\/+$/, '');
+  const baseUrl = (settings.canonicalUrl || 'https://ohodperfumes.com').replace(/\/+$/, '');
 
   // Generate Google Schema.org Product JSON-LD for rich snippets
   const jsonLd = product ? {
@@ -130,7 +122,10 @@ export default async function ProductDetailPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
-      <ProductDetailClient />
+      <ProductDetailClient
+        initialProduct={product || null}
+        initialCategories={db.categories || []}
+      />
     </>
   );
 }

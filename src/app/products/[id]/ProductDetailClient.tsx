@@ -22,36 +22,60 @@ import {
   Sparkles
 } from 'lucide-react';
 
-export default function ProductDetailClient() {
+interface ProductDetailClientProps {
+  initialProduct?: Product | null;
+  initialCategories?: Category[];
+}
+
+export default function ProductDetailClient({
+  initialProduct = null,
+  initialCategories = []
+}: ProductDetailClientProps) {
   const params = useParams();
   const router = useRouter();
   const idStr = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const productId = Number(idStr);
+  const productId = Number(idStr) || (initialProduct?.id ?? 0);
 
   const { addToCart, items, openCart } = useCart();
 
-  const [product, setProduct] = useState<Product | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [product, setProduct] = useState<Product | null>(initialProduct);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialProduct);
   const [error, setError] = useState<string | null>(null);
 
-  const [selectedImage, setSelectedImage] = useState<string>('');
-  const [selectedSize, setSelectedSize] = useState<string>('50 مل');
+  const [selectedImage, setSelectedImage] = useState<string>(
+    initialProduct?.images?.[0] || '/images/logo/don-logo-160.png'
+  );
+  const [selectedSize, setSelectedSize] = useState<string>(() => {
+    if (initialProduct?.sizes && initialProduct.sizes.length > 0) {
+      const valid = initialProduct.sizes.filter(s => s.price > 0);
+      if (valid.length > 0) return valid[0].size;
+    }
+    return '50 مل';
+  });
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+
+  // Synchronize browser tab title dynamically
+  useEffect(() => {
+    if (product?.nameAr) {
+      document.title = `${product.nameAr} | عطور أحد (Ohod Perfumes)`;
+    }
+  }, [product?.nameAr]);
 
   useEffect(() => {
     async function loadData() {
       if (!productId) return;
       try {
-        setLoading(true);
+        if (!initialProduct) setLoading(true);
         const res = await fetch('/api/catalog');
         const data = await res.json();
         if (data.success) {
           const found = (data.products as Product[]).find(p => p.id === productId);
           if (found) {
             setProduct(found);
+            document.title = `${found.nameAr} | عطور أحد (Ohod Perfumes)`;
             setSelectedImage(found.images?.[0] || '/images/logo/don-logo-160.png');
             if (found.sizes && found.sizes.length > 0) {
               const validSizes = found.sizes.filter(s => s.price > 0);
@@ -68,6 +92,7 @@ export default function ProductDetailClient() {
             setRelatedProducts(related);
           } else {
             setError('المنتج غير موجود أو ربما تم حذفه');
+            document.title = 'المنتج غير موجود | عطور أحد';
           }
         } else {
           setError(data.error || 'تعذر تحميل المنتج');
@@ -80,7 +105,7 @@ export default function ProductDetailClient() {
       }
     }
     loadData();
-  }, [productId]);
+  }, [productId, initialProduct]);
 
   if (loading) {
     return (

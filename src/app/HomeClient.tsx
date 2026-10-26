@@ -41,22 +41,39 @@ export default function HomeClient({
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
 
-  // Read category from URL query parameters (e.g. ?category=6)
+  // Read category from URL query parameters (e.g. ?category=6 or ?category=all)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const catParam = params.get('category');
       if (catParam) {
-        const catId = Number(catParam);
-        if (!isNaN(catId)) {
-          setSelectedCategory(catId);
+        if (catParam === 'all') {
+          setSelectedCategory('all');
           setTimeout(() => {
             const el = document.getElementById('products');
             if (el) {
               el.scrollIntoView({ behavior: 'smooth' });
             }
-          }, 100);
+          }, 150);
+        } else {
+          const catId = Number(catParam);
+          if (!isNaN(catId)) {
+            setSelectedCategory(catId);
+            setTimeout(() => {
+              const el = document.getElementById('products');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 150);
+          }
         }
+      } else if (window.location.hash === '#products') {
+        setTimeout(() => {
+          const el = document.getElementById('products');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 150);
       }
     }
   }, []);
@@ -197,7 +214,7 @@ export default function HomeClient({
             {settings && <HeroBanner settings={settings} />}
 
             {/* Category Pills Slider */}
-            <div className="mb-6 w-full">
+            <div id="products" className="mb-6 w-full scroll-mt-24">
               <div className="flex items-center gap-2.5 overflow-x-auto pb-2.5 pt-0.5 sm:flex-wrap lg:grid lg:grid-cols-8 scrollbar-none no-scrollbar w-full">
                 <button
                   onClick={() => handleSelectCategory('all')}

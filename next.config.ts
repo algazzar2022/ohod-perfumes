@@ -18,6 +18,20 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  async redirects() {
+    return [
+      {
+        source: '/products',
+        destination: '/?category=all#products',
+        permanent: false,
+      },
+      {
+        source: '/categories',
+        destination: '/?category=all#products',
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {
