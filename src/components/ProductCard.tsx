@@ -160,7 +160,7 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
             </div>
             {hasDiscount && (
               <span className="text-stone-400 text-xs sm:text-sm line-through block font-medium">
-                {product.price} ج.م
+                {originalPrice} ج.م
               </span>
             )}
           </div>
