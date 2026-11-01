@@ -58,10 +58,10 @@ function OrderSuccessContent() {
   const isInstapay = order?.paymentMethod === 'instapay';
   const paymentTarget = isInstapay
     ? (settings?.instapayAccount || '01015192223')
-    : (settings?.vodafoneCashNumber || '01015192223');
+    : (settings?.etisalatCashNumber || settings?.vodafoneCashNumber || '01015192223');
 
   const whatsappMessage = order
-    ? encodeURIComponent(`مرحباً عطور أحد (Ohod Perfumes)، قمت بعمل طلب برقم ${order.orderNumber} باسم ${order.customerName} بقيمة ${order.total} ج.م عبر ${isInstapay ? 'انستاباي' : 'فودافون كاش'} (المحول منه: ${order.paymentSenderInfo || 'غير محدد'}). أرجو تأكيد الطلب.`)
+    ? encodeURIComponent(`مرحباً عطور أحد (Ohod Perfumes)، قمت بعمل طلب برقم ${order.orderNumber} باسم ${order.customerName} بقيمة ${order.total} ج.م عبر ${isInstapay ? 'انستاباي' : 'اتصالات كاش (e& money)'} (المحول منه: ${order.paymentSenderInfo || 'غير محدد'}). أرجو تأكيد الطلب.`)
     : '';
 
   return (
@@ -114,7 +114,7 @@ function OrderSuccessContent() {
             <div>
               <span className="text-stone-400 block mb-0.5">طريقة الدفع المختارة:</span>
               <span className="font-bold text-amber-800">
-                {isInstapay ? '💳 انستاباي (InstaPay)' : '📱 فودافون كاش (Vodafone Cash)'}
+                {isInstapay ? '💳 انستاباي (InstaPay)' : '📱 اتصالات كاش (e& money)'}
               </span>
             </div>
             {order.paymentSenderInfo && (
@@ -135,7 +135,7 @@ function OrderSuccessContent() {
               <CreditCard className="w-5 h-5 text-amber-600 flex-shrink-0" />
               <div>
                 <span className="text-xs text-stone-500 block">
-                  {isInstapay ? 'رقم هاتف انستاباي المحول إليه:' : 'رقم محفظة فودافون كاش المحول إليها:'}
+                  {isInstapay ? 'رقم هاتف انستاباي المحول إليه:' : 'رقم محفظة اتصالات كاش (e& money) المحول إليها:'}
                 </span>
                 <span className="font-black text-stone-900 font-mono text-sm" dir="ltr">
                   {paymentTarget}

@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (body.paymentMethod === 'instapay' || body.paymentMethod === 'vodafone_cash') {
+    if (body.paymentMethod === 'instapay' || body.paymentMethod === 'etisalat_cash' || body.paymentMethod === 'vodafone_cash') {
       const cleanPaymentPhone = String(body.paymentSenderInfo || '').trim().replace(/\s+/g, '');
       if (!phoneRegex.test(cleanPaymentPhone)) {
         return NextResponse.json(
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
       shippingFee,
       total,
       status: 'pending',
-      paymentMethod: body.paymentMethod === 'vodafone_cash' ? 'vodafone_cash' : 'instapay',
+      paymentMethod: body.paymentMethod === 'instapay' ? 'instapay' : 'etisalat_cash',
       paymentSenderInfo: body.paymentSenderInfo?.trim() || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

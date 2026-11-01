@@ -41,8 +41,10 @@ export default function CheckoutPage() {
     bannerText: '',
     instapayAccount: '01015192223',
     instapayInstructions: 'يرجى تحويل إجمالي المبلغ عبر تطبيق انستاباي إلى رقم الهاتف أعلاه ثم إدخال رقم هاتفك المحول منه لتأكيد الطلب.',
+    etisalatCashNumber: '01015192223',
+    etisalatCashInstructions: 'يرجى تحويل إجمالي المبلغ لمحفظة اتصالات كاش (e& money) على الرقم أعلاه ثم إدخال رقم المحفظة المحول منها.',
     vodafoneCashNumber: '01015192223',
-    vodafoneCashInstructions: 'يرجى تحويل إجمالي المبلغ لمحفظة فودافون كاش على الرقم أعلاه ثم إدخال رقم المحفظة المحول منها.',
+    vodafoneCashInstructions: 'يرجى تحويل إجمالي المبلغ لمحفظة اتصالات كاش (e& money) على الرقم أعلاه ثم إدخال رقم المحفظة المحول منها.',
     footerAboutText: '',
     footerAddress: '',
     footerGuarantees: [],
@@ -59,7 +61,7 @@ export default function CheckoutPage() {
   const [notes, setNotes] = useState('');
 
   // Payment Selection
-  const [paymentMethod, setPaymentMethod] = useState<'instapay' | 'vodafone_cash'>('instapay');
+  const [paymentMethod, setPaymentMethod] = useState<'instapay' | 'etisalat_cash' | 'vodafone_cash'>('instapay');
   const [paymentSenderInfo, setPaymentSenderInfo] = useState('');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -146,7 +148,7 @@ export default function CheckoutPage() {
       setErrorMsg(
         paymentMethod === 'instapay'
           ? 'يرجى إدخال رقم الهاتف المحول منه في انستاباي'
-          : 'يرجى إدخال رقم محفظة فودافون كاش المحول منها'
+          : 'يرجى إدخال رقم محفظة اتصالات كاش (e& money) المحول منها'
       );
       return;
     }
@@ -155,7 +157,7 @@ export default function CheckoutPage() {
       setErrorMsg(
         paymentMethod === 'instapay'
           ? 'يرجى إدخال رقم هاتف مصري صحيح محول منه عبر انستاباي (11 رقماً يبدأ بـ 010 أو 011 أو 012 أو 015)'
-          : 'يرجى إدخال رقم محفظة فودافون كاش مصري صحيح محول منها (11 رقماً يبدأ بـ 010 أو 011 أو 012 أو 015)'
+          : 'يرجى إدخال رقم محفظة اتصالات كاش مصري صحيح محول منها (11 رقماً يبدأ بـ 010 أو 011 أو 012 أو 015)'
       );
       return;
     }
@@ -340,7 +342,7 @@ export default function CheckoutPage() {
               <div className="pt-4 border-t border-stone-200 space-y-4">
                 <h2 className="text-lg font-bold text-stone-900 flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-amber-600" />
-                  <span>٢. طريقة الدفع الإلكتروني (انستاباي / فودافون كاش)</span>
+                  <span>٢. طريقة الدفع الإلكتروني (انستاباي / اتصالات كاش e& money)</span>
                 </h2>
                 <p className="text-xs text-stone-500">
                   اختر وسيلة الدفع المناسبة، وانسخ رقم الحساب لإتمام التحويل، ثم أدخل رقمك المحول منه لتأكيد طلبك:
@@ -369,23 +371,23 @@ export default function CheckoutPage() {
                     <p className="text-[11px] text-stone-500">تحويل فوري بدون أي مصاريف إضافية</p>
                   </div>
 
-                  {/* Vodafone Cash Card */}
+                  {/* Etisalat Cash Card */}
                   <div
-                    onClick={() => setPaymentMethod('vodafone_cash')}
+                    onClick={() => setPaymentMethod('etisalat_cash')}
                     className={`cursor-pointer rounded-2xl p-4 border-2 transition relative flex flex-col justify-between ${
-                      paymentMethod === 'vodafone_cash'
-                        ? 'border-amber-600 bg-amber-50/60 shadow-xs'
+                      paymentMethod === 'etisalat_cash' || paymentMethod === 'vodafone_cash'
+                        ? 'border-emerald-600 bg-emerald-50/60 shadow-xs'
                         : 'border-stone-200 bg-stone-50 hover:border-stone-300'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full bg-red-600"></span>
-                        <span className="font-bold text-sm text-stone-900">فودافون كاش (Vodafone Cash)</span>
+                        <span className="w-3 h-3 rounded-full bg-emerald-600"></span>
+                        <span className="font-bold text-sm text-stone-900">اتصالات كاش (e& money)</span>
                       </div>
-                      <Smartphone className="w-4 h-4 text-red-600" />
+                      <Smartphone className="w-4 h-4 text-emerald-600" />
                     </div>
-                    <p className="text-[11px] text-stone-500">تحويل لمحفظة فودافون كاش بسهولة</p>
+                    <p className="text-[11px] text-stone-500">تحويل لمحفظة اتصالات كاش (e& money) بسهولة</p>
                   </div>
                 </div>
 
@@ -451,27 +453,27 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {paymentMethod === 'vodafone_cash' && (
-                  <div className="p-4 sm:p-5 rounded-2xl bg-red-50/70 border border-red-200 space-y-3 animate-in fade-in">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-red-200">
+                {(paymentMethod === 'etisalat_cash' || paymentMethod === 'vodafone_cash') && (
+                  <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-3 animate-in fade-in">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-emerald-200">
                       <div>
                         <span className="text-[11px] text-stone-500 block font-medium">
-                          رقم محفظة فودافون كاش لتحويل إجمالي المبلغ:
+                          رقم محفظة اتصالات كاش (e& money) لتحويل إجمالي المبلغ:
                         </span>
                         <span className="font-black text-stone-900 text-sm sm:text-base font-mono tracking-wide" dir="ltr">
-                          {settings.vodafoneCashNumber || '01015192223'}
+                          {settings.etisalatCashNumber || settings.vodafoneCashNumber || '01015192223'}
                         </span>
                       </div>
                       <button
                         type="button"
-                        onClick={() => handleCopy(settings.vodafoneCashNumber || '01015192223', 'vodafone')}
+                        onClick={() => handleCopy(settings.etisalatCashNumber || settings.vodafoneCashNumber || '01015192223', 'etisalat')}
                         className={`inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs transition duration-200 shadow-xs cursor-pointer ${
-                          copiedKey === 'vodafone'
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-red-600 hover:bg-red-700 text-white'
+                          copiedKey === 'etisalat'
+                            ? 'bg-emerald-700 text-white'
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                         }`}
                       >
-                        {copiedKey === 'vodafone' ? (
+                        {copiedKey === 'etisalat' ? (
                           <>
                             <Check className="w-4 h-4" />
                             <span>تم النسخ بنجاح! ✓</span>
@@ -485,13 +487,13 @@ export default function CheckoutPage() {
                       </button>
                     </div>
 
-                    <p className="text-xs text-red-950 leading-relaxed font-medium">
-                      💡 {settings.vodafoneCashInstructions}
+                    <p className="text-xs text-emerald-950 leading-relaxed font-medium">
+                      💡 {settings.etisalatCashInstructions || settings.vodafoneCashInstructions}
                     </p>
 
                     <div>
                       <label className="block text-xs font-bold text-stone-800 mb-1">
-                        رقم محفظة فودافون كاش المحول منها <span className="text-red-500">*</span>
+                        رقم محفظة اتصالات كاش (e& money) المحول منها <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="tel"
@@ -506,7 +508,7 @@ export default function CheckoutPage() {
                           const val = e.target.value.replace(/\D/g, '').slice(0, 11);
                           setPaymentSenderInfo(val);
                         }}
-                        className="w-full bg-white border border-red-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-right focus:border-red-600 outline-none transition font-mono tracking-wider"
+                        className="w-full bg-white border border-emerald-300 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-right focus:border-emerald-600 outline-none transition font-mono tracking-wider"
                       />
                     </div>
                   </div>

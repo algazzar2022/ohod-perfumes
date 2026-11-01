@@ -26,7 +26,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
   instagramUrl: 'https://www.instagram.com/nehalmahmoud2022/',
   tiktokUrl: 'https://www.tiktok.com/@nehalmahmoud7',
   bannerEnabled: false,
-  bannerText: '🚚 شحن سريع لجميع محافظات مصر | دفع آمن عبر انستاباي وفودافون كاش',
+  bannerText: '🚚 شحن سريع لجميع محافظات مصر | دفع آمن عبر انستاباي واتصالات كاش (e& money)',
 
   // Hero Media Banner Defaults
   heroBannerEnabled: true,
@@ -44,8 +44,10 @@ const DEFAULT_SETTINGS: StoreSettings = {
   // Payments Defaults
   instapayAccount: '01112724099',
   instapayInstructions: 'يرجى تحويل إجمالي المبلغ عبر تطبيق انستاباي إلى رقم الهاتف أعلاه ثم إدخال رقم هاتفك المحول منه لتأكيد الطلب.',
+  etisalatCashNumber: '01015192223',
+  etisalatCashInstructions: 'يرجى تحويل إجمالي المبلغ لمحفظة اتصالات كاش (e& money) على الرقم أعلاه ثم إدخال رقم المحفظة المحول منها.',
   vodafoneCashNumber: '01015192223',
-  vodafoneCashInstructions: 'يرجى تحويل إجمالي المبلغ لمحفظة فودافون كاش على الرقم أعلاه ثم إدخال رقم المحفظة المحول منها.',
+  vodafoneCashInstructions: 'يرجى تحويل إجمالي المبلغ لمحفظة اتصالات كاش (e& money) على الرقم أعلاه ثم إدخال رقم المحفظة المحول منها.',
 
   // Footer Defaults
   footerAboutText: 'عطور أحد (Ohod Perfumes) - وجهتك الأولى لأرقى العطور الفرنسية والشرقية الأصلية المركزة بدون كحول في مصر. ثبات يدوم طويلاً بأسعار منافسة وتوصيل فوري لجميع المحافظات.',
@@ -53,7 +55,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
   footerGuarantees: [
     'ضمان أصالة المنتجات ١٠٠٪',
     'توصيل سريع وآمن لجميع المحافظات',
-    'دفع إلكتروني فوري وموثوق عبر انستاباي وفودافون كاش',
+    'دفع إلكتروني فوري وموثوق عبر انستاباي واتصالات كاش (e& money)',
     'خدمة عملاء ومتابعة مستمرة بعد الطلب'
   ],
   footerCopyrightText: '© 2026 عطور أحد - Ohod Perfumes. جميع الحقوق محفوظة.',
@@ -62,7 +64,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
 
   // SEO Defaults
   siteTitle: 'عطور أحد | Ohod Perfumes - عطور فرنسية وشرقية أصلية فاخرة في مصر',
-  metaDescription: 'تسوق أفضل العطور والزيوت العطرية المركزة بدون كحول في مصر من عطور أحد (Ohod Perfumes). عطور فرنسية وشرقية رجالي وحريمي، ثبات عالي وتوصيل سريع لكافة المحافظات مع دفع سهل عبر انستاباي وفودافون كاش.',
+  metaDescription: 'تسوق أفضل العطور والزيوت العطرية المركزة بدون كحول في مصر من عطور أحد (Ohod Perfumes). عطور فرنسية وشرقية رجالي وحريمي، ثبات عالي وتوصيل سريع لكافة المحافظات مع دفع سهل عبر انستاباي واتصالات كاش (e& money).',
   metaKeywords: 'عطور أحد, Ohod Perfumes, عطور فرنسية, عطور شرقية, دون الأصلي, دون الأبيض, دون البينك, زيوت عطرية, عطور بدون كحول, عطور مصر, شراء عطور أونلاين',
   canonicalUrl: 'https://ohodperfumes.com',
   ogImage: 'https://res.cloudinary.com/kuypfdzb/image/upload/v1792719223/807590317_1763755772421552_7849880766636249819_n.jpg',

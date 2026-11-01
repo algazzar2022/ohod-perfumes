@@ -98,7 +98,7 @@ export interface Order {
   shippingFee: number;
   total: number;
   status: 'pending' | 'processing' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
-  paymentMethod: 'vodafone_cash' | 'instapay';
+  paymentMethod: 'etisalat_cash' | 'vodafone_cash' | 'instapay';
   paymentSenderInfo?: string;
   createdAt: string;
   updatedAt?: string;
@@ -124,8 +124,10 @@ export interface StoreSettings {
   adminPasswordHash?: string;
   instapayAccount: string;
   instapayInstructions: string;
-  vodafoneCashNumber: string;
-  vodafoneCashInstructions: string;
+  etisalatCashNumber?: string;
+  etisalatCashInstructions?: string;
+  vodafoneCashNumber?: string;
+  vodafoneCashInstructions?: string;
   footerAboutText?: string;
   footerAddress?: string;
   footerGuarantees?: string[];

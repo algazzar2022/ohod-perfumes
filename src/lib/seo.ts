@@ -6,7 +6,7 @@ export async function getStoreMetadata(): Promise<Metadata> {
     const db = await getDbAsync();
     const s = db.settings;
     const title = s.siteTitle || 'عطور أحد | Ohod Perfumes - عطور فرنسية وشرقية أصلية فاخرة في مصر';
-    const description = s.metaDescription || 'تسوق أفضل العطور والزيوت العطرية المركزة بدون كحول في مصر من عطور أحد (Ohod Perfumes). عطور فرنسية وشرقية رجالي وحريمي، ثبات عالي وتوصيل سريع لكافة المحافظات مع دفع سهل عبر انستاباي وفودافون كاش.';
+    const description = s.metaDescription || 'تسوق أفضل العطور والزيوت العطرية المركزة بدون كحول في مصر من عطور أحد (Ohod Perfumes). عطور فرنسية وشرقية رجالي وحريمي، ثبات عالي وتوصيل سريع لكافة المحافظات مع دفع سهل عبر انستاباي واتصالات كاش (e& money).';
     const keywords = (s.metaKeywords || '').split(',').map(k => k.trim()).filter(Boolean);
     const canonical = (s.canonicalUrl || 'https://ohodperfumes.com').replace(/\/+$/, '');
     
