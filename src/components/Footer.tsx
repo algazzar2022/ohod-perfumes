@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Phone, MapPin, ShieldCheck } from 'lucide-react';
+import { Phone, MapPin, ShieldCheck, MessageCircle } from 'lucide-react';
 import { StoreSettings } from '@/lib/db';
 
 export default function Footer() {
@@ -11,7 +11,7 @@ export default function Footer() {
     storeName: 'عطور أحد | Ohod Perfumes',
     storeTagline: 'عطور فاخرة بأسعار منافسة في مصر',
     phone: '01015192223',
-    whatsapp: '01015192223',
+    whatsapp: '01112724099',
     facebookUrl: 'https://www.facebook.com/groups/448204199913696',
     instagramUrl: 'https://www.instagram.com/nehalmahmoud2022/',
     tiktokUrl: 'https://www.tiktok.com/@nehalmahmoud7',
@@ -213,10 +213,24 @@ export default function Footer() {
                 <MapPin className="w-4 h-4 text-amber-500 flex-shrink-0" />
                 <span>{settings.footerAddress}</span>
               </div>
-              <div className="flex items-center gap-2.5">
+              <a
+                href={`tel:${settings.phone || '01015192223'}`}
+                className="flex items-center gap-2.5 hover:text-amber-400 transition"
+              >
                 <Phone className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                <span dir="ltr">{settings.phone}</span>
-              </div>
+                <span dir="ltr">{settings.phone || '01015192223'}</span>
+              </a>
+              <a
+                href={`https://wa.me/2${(settings.whatsapp || '01112724099').replace(/[^0-9]/g, '').replace(/^20/, '').replace(/^0/, '')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2.5 hover:text-emerald-400 transition group"
+              >
+                <MessageCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <span dir="ltr" className="group-hover:text-emerald-400 transition">
+                  {settings.whatsapp || '01112724099'}
+                </span>
+              </a>
             </div>
           </div>
         </div>

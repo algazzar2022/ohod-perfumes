@@ -21,7 +21,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
   storeName: 'عطور أحد | Ohod Perfumes',
   storeTagline: 'عطور فاخرة وأصلية بأسعار منافسة في مصر',
   phone: '01015192223',
-  whatsapp: '201015192223',
+  whatsapp: '01112724099',
   facebookUrl: 'https://www.facebook.com/groups/448204199913696',
   instagramUrl: 'https://www.instagram.com/nehalmahmoud2022/',
   tiktokUrl: 'https://www.tiktok.com/@nehalmahmoud7',
