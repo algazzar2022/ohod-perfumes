@@ -114,7 +114,9 @@ export default function ProductCard({ product, categoryName }: ProductCardProps)
           </Link>
 
           {product.descriptionAr && (
-            <p className="text-stone-600 text-xs sm:text-sm mt-1.5 line-clamp-2 leading-relaxed font-normal">
+            <p className={`text-stone-600 text-xs sm:text-sm mt-1.5 leading-relaxed font-normal ${
+              availableSizes.length > 0 ? 'line-clamp-2' : 'line-clamp-4'
+            }`}>
               {product.descriptionAr}
             </p>
           )}
